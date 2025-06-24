@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="main-container">
+    <div class="deletar-card">
+        <h1>Confirmar Exclusão</h1>
+        <p>Tem certeza de que deseja excluir o animal "{{ object.brinco }}"?</p>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary">Excluir</button>
+            <a href="{% url 'listaboi' %}" class="btn btn-secondary">Cancelar</a>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="form-container">
+    <h2>Nascimento Animal</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+            {{ form.brinco.label_tag }}
+            {{ form.brinco }}
+        </div>
+        <div class="form-group">
+            {{ form.fornecedor.label_tag }}
+            {{ form.fornecedor }}
+        </div>
+        <div class="form-group">
+            {{ form.raca.label_tag }}
+            {{ form.raca }}
+        </div>
+        <div class="form-group">
+            {{ form.sexo.label_tag }}
+            {{ form.sexo }}
+        </div>
+        <div class="form-group">
+            {{ form.peso_entrada.label_tag }}
+            {{ form.peso_entrada }}
+        </div>
+        <div class="form-group">
+            {{ form.data_nascimento.label_tag }}
+            {{ form.data_nascimento }}
+        </div>
+        <div class="form-group">
+            {{ form.data_entrada.label_tag }}
+            {{ form.data_entrada }}
+        </div>
+        <div class="form-group">
+            {{ form.status_boi.label_tag }}
+            {{ form.status_boi }}
+        </div>
+        <div class="form-group">
+            {{ form.lote.label_tag }}
+            {{ form.lote }}
+        </div>
+        <div>
+            <button type="submit"> Cadastrar </button>
+            <button><a href="{% url 'listaboi' %}"> Cancelar </a></button>
+        </div>
+    </form>
+</div>
+{% endblock %}
