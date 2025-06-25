@@ -3,64 +3,59 @@
 {% block title %}Lista de Bois{% endblock %}
 
 {% block content %}
-<div class="w-full max-w-6xl mx-auto bg-white shadow-lg rounded-lg p-6">
-    <h1 class="text-2xl font-bold text-gray-700 mb-4">Lista de Bois</h1>
-
-    <!-- Barra de busca -->
-    <form method="get" action="" class="flex flex-col md:flex-row items-center gap-4 mb-6">
-        <input 
-            type="text" 
-            name="search" 
-            placeholder="Buscar boi..." 
-            value="{{ request.GET.search }}" 
-            class="w-full md:flex-1 px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded">
-            Buscar
-        </button>
-        <a href="{% url 'listaboi' %}" class="bg-gray-300 hover:bg-gray-400 text-gray-700 font-semibold px-4 py-2 rounded">
-            Limpar
-        </a>
+<div class="lista-container">
+  <div class="lista-header">
+    <h1 class="lista-titulo">Lista de Bois</h1>
+    <form method="get" action="" class="lista-busca">
+      <input 
+        type="text" 
+        name="search" 
+        placeholder="Buscar boi..." 
+        value="{{ request.GET.search }}" 
+        class="input-busca"
+      >
+      <button type="submit" class="botao-acao botao-buscar">Buscar</button>
+      <a href="{% url 'listaboi' %}" class="botao-acao botao-limpar">Limpar</a>
     </form>
+  </div>
 
-    <!-- Tabela -->
-    <div class="overflow-x-auto">
-        <table class="min-w-full text-sm text-gray-700 border rounded">
-            <thead class="bg-gray-100">
-                <tr>
-                    <th class="px-4 py-2 border">Brinco</th>
-                    <th class="px-4 py-2 border">Fornecedor</th>
-                    <th class="px-4 py-2 border">Raça</th>
-                    <th class="px-4 py-2 border">Sexo</th>
-                    <th class="px-4 py-2 border">Peso Entrada (kg)</th>
-                    <th class="px-4 py-2 border">Data Nasc.</th>
-                    <th class="px-4 py-2 border">Data Entrada</th>
-                    <th class="px-4 py-2 border">Status</th>
-                    <th class="px-4 py-2 border">Lote</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% if bois %}
-                    {% for boi in bois %}
-                        <tr onclick="window.location.href='{% url 'detalheboi' pk=boi.pk %}'" class="cursor-pointer hover:bg-gray-100">
-                            <td class="px-4 py-2 border">{{ boi.brinco }}</td>
-                            <td class="px-4 py-2 border">{{ boi.fornecedor }}</td>
-                            <td class="px-4 py-2 border">{{ boi.raca }}</td>
-                            <td class="px-4 py-2 border">{{ boi.sexo }}</td>
-                            <td class="px-4 py-2 border">{{ boi.peso_entrada }}</td>
-                            <td class="px-4 py-2 border">{{ boi.data_nascimento }}</td>
-                            <td class="px-4 py-2 border">{{ boi.data_entrada }}</td>
-                            <td class="px-4 py-2 border">{{ boi.status_boi.nome_status }}</td>
-                            <td class="px-4 py-2 border">{{ boi.lote }}</td>
-                        </tr>
-                    {% endfor %}
-                {% else %}
-                    <tr>
-                        <td colspan="9" class="text-center text-gray-500 py-4">Nenhum boi encontrado.</td>
-                    </tr>
-                {% endif %}
-            </tbody>
-        </table>
-    </div>
+  <div class="tabela-wrapper">
+    <table class="tabela-lista">
+      <thead>
+        <tr>
+          <th>Brinco</th>
+          <th>Fornecedor</th>
+          <th>Raça</th>
+          <th>Sexo</th>
+          <th>Peso Entrada (kg)</th>
+          <th>Data Nasc.</th>
+          <th>Data Entrada</th>
+          <th>Status</th>
+          <th>Lote</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if bois %}
+          {% for boi in bois %}
+            <tr onclick="window.location.href='{% url 'detalheboi' pk=boi.pk %}'" class="linha-tabela">
+              <td>{{ boi.brinco }}</td>
+              <td>{{ boi.fornecedor }}</td>
+              <td>{{ boi.raca }}</td>
+              <td>{{ boi.sexo }}</td>
+              <td>{{ boi.peso_entrada }}</td>
+              <td>{{ boi.data_nascimento }}</td>
+              <td>{{ boi.data_entrada }}</td>
+              <td>{{ boi.status_boi.nome_status }}</td>
+              <td>{{ boi.lote }}</td>
+            </tr>
+          {% endfor %}
+        {% else %}
+          <tr>
+            <td colspan="9" class="sem-registro">Nenhum boi encontrado.</td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
 </div>
 {% endblock %}

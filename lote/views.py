@@ -10,13 +10,14 @@ class ListaLoteView(ListView):
     context_object_name = 'lotes'
 
     def get_queryset(self):
-        queryset = super().get_queryset().order_by('nome')
+        queryset = super().get_queryset().order_by('nome_lote')
         search = self.request.GET.get('search')
         if search:
             queryset = queryset.filter(
-                Q(nome__icontains=search) |
-                Q(curral__nome__icontains=search)
-            ).order_by('nome')
+                Q(nome_lote__icontains=search) |
+                Q(curral__nome_curral__icontains=search)
+            ).order_by('nome_lote')
+        return queryset
                 
 class LoteCreateView(CreateView):
     model = Lote

@@ -1,32 +1,52 @@
 {% extends 'base.html' %}
 
+{% block title %}Lista de Aplicações{% endblock %}
+
 {% block content %}
-<div class="container mt-4">
-    <h2>Lista de Aplicações de Medicamento</h2>
-    <a href="{% url 'criaraplicacao' %}" class="btn btn-primary mb-3">Nova Aplicação</a>
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Data</th>
-                <th>Boi</th>
-                <th>Responsável Técnico</th>
-                <th>Ações</th>
+<div class="lista-container">
+  <div class="lista-header">
+    <h1 class="lista-titulo">Lista de Aplicações de Medicamento</h1>
+    <form method="get" action="" class="lista-busca">
+      <input 
+        type="text" 
+        name="search" 
+        placeholder="Buscar por brinco ou data (aaaa-mm-dd)..." 
+        value="{{ request.GET.search }}" 
+        class="input-busca"
+      >
+      <button type="submit" class="botao-acao botao-buscar">Buscar</button>
+      <a href="{% url 'listaaplicacao' %}" class="botao-acao botao-limpar">Limpar</a>
+      <a href="{% url 'criaraplicacao' %}" class="botao-acao botao-adicionar">Nova Aplicação</a>
+    </form>
+  </div>
+
+  <div class="tabela-wrapper">
+    <table class="tabela-lista">
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Boi</th>
+          <th>Responsável Técnico</th>
+          <th>Doença</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if aplicacoes %}
+          {% for aplicacao in aplicacoes %}
+            <tr class="linha-tabela">
+              <td>{{ aplicacao.data_aplicacao_medicamento }}</td>
+              <td>{{ aplicacao.boi }}</td>
+              <td>{{ aplicacao.responsavel_tecnico }}</td>
+              <td>{{ aplicacao.doenca }}</td>
             </tr>
-        </thead>
-        <tbody>
-            {% for aplicacao in aplicacoes %}
-                <tr>
-                    <td>{{ aplicacao.data_aplicacao_medicamento }}</td>
-                    <td>{{ aplicacao.boi }}</td>
-                    <td>{{ aplicacao.responsavel_tecnico }}</td>
-                    <td>
-                        <a href="{% url 'deletaraplicacao' aplicacao.pk %}" class="btn btn-danger btn-sm">Excluir</a>
-                    </td>
-                </tr>
-            {% empty %}
-                <tr><td colspan="4">Nenhuma aplicação registrada.</td></tr>
-            {% endfor %}
-        </tbody>
+          {% endfor %}
+        {% else %}
+          <tr>
+            <td colspan="4" class="sem-registro">Nenhuma aplicação registrada.</td>
+          </tr>
+        {% endif %}
+      </tbody>
     </table>
+  </div>
 </div>
 {% endblock %}

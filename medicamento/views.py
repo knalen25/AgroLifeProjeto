@@ -63,6 +63,18 @@ class AplicacaoEventoListView(ListView):
     template_name = 'aplicarmedicamento/listaaplicacao.html'
     context_object_name = 'aplicacoes'
 
+    def get_queryset(self):
+        queryset = super().get_queryset().order_by('-data_aplicacao_medicamento')
+        search = self.request.GET.get('search')
+
+        if search:
+            queryset = queryset.filter(
+                Q(boi__brinco__icontains=search) |
+                Q(data_aplicacao_medicamento__icontains=search)
+            )
+
+        return queryset
+
 class AplicacaoEventoDeleteView(DeleteView):
     model = AplicacaoEvento
     template_name = 'aplicarmedicamento/deletaraplicacao.html'

@@ -11,15 +11,15 @@ class ListaCurralView(ListView):
     context_object_name = 'currais'
 
     def get_queryset(self):
-        queryset = super().get_queryset().order_by('nome')
+        queryset = super().get_queryset().order_by('nome_curral')
         search = self.request.GET.get('search')
 
         if search:
             queryset = queryset.filter(
                 Q(nome_curral__icontains=search) |
                 Q(tipo_curral__nome_tipo_curral__icontains=search)
-            ).order_by('nome')
-        return queryset        
+            ).order_by('nome_curral')
+        return queryset
         
 class CurralCreateView(CreateView):
     model = Curral
