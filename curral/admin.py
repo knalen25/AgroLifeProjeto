@@ -20,7 +20,7 @@ class CurralAdmin(admin.ModelAdmin):
         'peso_min',
         'peso_max',
         'area_m2',
-        'area_coche',
+        'area_cocho',
         'ativo',
         'tipo_curral',
     )

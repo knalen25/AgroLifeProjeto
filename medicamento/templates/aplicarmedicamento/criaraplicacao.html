@@ -1,28 +1,95 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2>Registrar Aplicação de Medicamento no Boi</h2>
+<div class="form-container">
+    <h2>Registrar Aplicação de Medicamento</h2>
     <form method="post">
         {% csrf_token %}
 
-        <fieldset class="border p-3 mb-3">
-            <legend>Dados da Aplicação</legend>
-            {{ form.as_p }}
-        </fieldset>
+        <div class="form-grid">
+            {% for field in form %}
+            <div class="form-group">
+                {{ field.label_tag }}
+                {{ field }}
+            </div>
+            {% endfor %}
+        </div>
 
-        <fieldset class="border p-3 mb-3">
-            <legend>Medicamentos Aplicados</legend>
-            {{ formset.management_form }}
-            {% for form in formset %}
-                <div class="border p-2 mb-2">
-                    {{ form.as_p }}
+        <div class="form-section-divider">
+            <h3>Medicamentos Aplicados</h3>
+        </div>
+
+        {{ formset.management_form }}
+
+        <div id="medicamento-form-list">
+            {% for subform in formset %}
+                <div class="form-grid formset-item">
+                    {% for field in subform %}
+                        
+                        <div class="form-group {% if field.name == 'idmedicamento_aplicado' or field.name == 'evento' %}campo-oculto{% endif %}">
+                            {{ field.label_tag }}
+                            {{ field }}
+                        </div>
+                    {% endfor %}
+                    
+                    <div class="form-group-action">
+                        <button type="button" class="botao-acao botao-remover remove-form">Remover</button>
+                    </div>
                 </div>
             {% endfor %}
-        </fieldset>
+        </div>
 
-        <button type="submit" class="btn btn-success">Salvar Aplicação</button>
-        <a href="{% url 'listaaplicacao' %}" class="btn btn-secondary">Cancelar</a>
+        <div class="form-actions form-actions-add">
+            <button type="button" id="add-form" class="botao-acao botao-adicionar">Adicionar Medicamento</button>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="botao-acao botao-adicionar">Salvar Aplicação</button>
+            <a href="{% url 'listaaplicacao' %}" class="botao-acao botao-limpar">Cancelar</a>
+        </div>
     </form>
 </div>
+
+<div id="empty-form" class="hidden">
+    <div class="form-grid formset-item ">
+        {% for field in formset.empty_form %}
+        <div class="form-group {% if field.name == 'idmedicamento_aplicado' or field.name == 'evento' %}campo-oculto{% endif %}">
+            {{ field.label_tag }}
+            {{ field }}
+        </div>
+        {% endfor %}
+        <div class="form-group-action">
+            <button type="button" class="botao-acao botao-remover remove-form">Remover</button>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const formList = document.getElementById('medicamento-form-list');
+    const addButton = document.getElementById('add-form');
+    const emptyFormTemplate = document.getElementById('empty-form').innerHTML;
+    const totalFormsInput = document.querySelector('input[name="{{ formset.prefix }}-TOTAL_FORMS"]');
+    
+    addButton.addEventListener('click', function() {
+        let currentFormCount = parseInt(totalFormsInput.value);
+        let newForm = emptyFormTemplate.replace(/__prefix__/g, currentFormCount);
+        
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = newForm;
+        formList.append(tempDiv.firstElementChild);
+        
+        totalFormsInput.value = currentFormCount + 1;
+    });
+
+    formList.addEventListener('click', function(e) {
+        if (e.target && e.target.classList.contains('remove-form')) {
+            const formItem = e.target.closest('.formset-item');
+            if (formItem) {
+                formItem.remove();
+            }
+        }
+    });
+});
+</script>
 {% endblock %}

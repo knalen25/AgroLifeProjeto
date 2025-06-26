@@ -13,6 +13,9 @@ class Doenca(models.Model):
     class Meta:
         db_table = 'doenca'
         
+    def __str__(self):
+        return self.nome_doenca
+        
 class ResponsavelTecnico(models.Model):
     idresponsavel_tecnico = models.AutoField(
         primary_key=True,
@@ -26,6 +29,9 @@ class ResponsavelTecnico(models.Model):
     class Meta:
         db_table = 'responsavel_tecnico'
         
+    def __str__(self):
+        return self.nome_responsavel
+    
 class TipoMedicamento(models.Model):
     idtipo_medicamento = models.AutoField(
         primary_key=True,
@@ -39,7 +45,9 @@ class TipoMedicamento(models.Model):
     class Meta:
         db_table = 'tipo_medicamento'
 
-
+    def __str__(self):
+        return self.nome_medicamento
+    
 class PrincipioAtivo(models.Model):
     idprincipio_ativo = models.AutoField(
         primary_key=True,
@@ -53,6 +61,8 @@ class PrincipioAtivo(models.Model):
     class Meta:
         db_table = 'principio_ativo'
 
+    def __str__(self):
+        return self.nome_principio_ativo
 
 class Laboratorio(models.Model):
     idlaboratorio = models.AutoField(
@@ -67,6 +77,8 @@ class Laboratorio(models.Model):
     class Meta:
         db_table = 'laboratorio'
 
+    def __str__(self):
+        return self.nome_laboratorio
 
 class Medicamento(models.Model):
     idmedicamento = models.AutoField(
@@ -107,6 +119,8 @@ class Medicamento(models.Model):
     class Meta:
         db_table = 'medicamento'
     
+    def __str__(self):
+        return self.nome_medicamento
     
 class AplicacaoEvento(models.Model):
     idaplicacao_evento = models.AutoField(
@@ -154,7 +168,7 @@ class MedicamentoAplicado(models.Model):
 
     idmedicamento_aplicado = models.AutoField(primary_key=True)
     evento = models.ForeignKey(AplicacaoEvento, on_delete=models.CASCADE)
-    medicamento = models.ForeignKey(Medicamento, on_delete=models.PROTECT)
+    medicamento = models.ForeignKey(Medicamento, on_delete=models.CASCADE)
     
     dose_aplicada = models.DecimalField(
         max_digits=5,

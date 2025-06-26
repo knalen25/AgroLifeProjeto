@@ -26,29 +26,27 @@
         <tr>
           <th>Nome</th>
           <th>Tipo</th>
+          <th>Princípio Ativo</th>
           <th>Laboratório</th>
-          <th>Ações</th>
+          <th>Preço (ml)</th>
+          <th>Dias de Carência</th>
         </tr>
       </thead>
       <tbody>
         {% if medicamentos %}
           {% for medicamento in medicamentos %}
-            <tr class="linha-tabela">
+            <tr onclick="window.location.href='{% url 'detalhemedicamento' pk=medicamento.pk %}'" class="linha-tabela">
               <td>{{ medicamento.nome_medicamento }}</td>
-              <td>{{ medicamento.tipo_medicamento }}</td>
-              <td>{{ medicamento.laboratorio }}</td>
-              <td>
-                <a href="{% url 'deletarmedicamento' medicamento.pk %}" 
-                   class="botao-acao botao-excluir"
-                   onclick="event.stopPropagation();">
-                  Excluir
-                </a>
-              </td>
+              <td>{{ medicamento.tipo_medicamento.nome_medicamento }}</td>
+              <td>{{ medicamento.principio_ativo.nome_principio_ativo }}</td>
+              <td>{{ medicamento.laboratorio.nome_laboratorio }}</td>
+              <td>R$ {{ medicamento.preco_ml|floatformat:2 }}</td>
+              <td>{{ medicamento.dias_de_carencia }} dias</td>
             </tr>
           {% endfor %}
         {% else %}
           <tr>
-            <td colspan="4" class="sem-registro">Nenhum registro encontrado.</td>
+            <td colspan="6" class="sem-registro">Nenhum registro encontrado.</td>
           </tr>
         {% endif %}
       </tbody>

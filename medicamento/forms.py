@@ -25,6 +25,13 @@ class AplicacaoEventoForm(forms.ModelForm):
             'responsavel_tecnico'
         ]
 
+        widgets = {
+            'data_aplicacao_medicamento': forms.DateInput(
+                attrs={'type': 'date'}
+            ),
+        }
+
+
 
 class MedicamentoAplicadoForm(forms.ModelForm):
     class Meta:

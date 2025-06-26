@@ -2,21 +2,24 @@
 
 {% block content %}
 
-<div class="main-container">
-  <form method="post" enctype="multipart/form-data" class="form-card">
+<div class="form-container">
+  <form method="post" enctype="multipart/form-data">
       {% csrf_token %}
-      <h1>Registrar Morte</h1>
+      <h2>Registrar Morte</h2>
       
-      <table>
-          
-          {{ form.as_table }}
-          
-      </table>
-      <div>
-        <div>
-          <button type="submit"> Cadastrar </button>
-          <button><a href="{% url 'listamorte' %}"> Cancelar </a></button>
-        </div>
+      <div class="form-grid">
+          {% for field in form %}
+          <div class="form-group">
+              {{ field.label_tag }}
+              {{ field }}
+              {{ field.errors }}
+          </div>
+          {% endfor %}
+      </div>
+      
+      <div class="form-actions">
+        <button type="submit" class="botao-acao botao-adicionar">Registrar</button>
+        <a href="{% url 'listamorte' %}" class="botao-acao botao-limpar">Cancelar</a>
       </div>
   </form>
 </div>

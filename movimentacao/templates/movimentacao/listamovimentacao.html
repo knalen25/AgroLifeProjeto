@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Lista de Movimentações{% endblock %}
+
+{% block content %}
+<div class="lista-container">
+    <div class="lista-header">
+        <h1 class="lista-titulo">Movimentações de Lote/Curral</h1>
+        
+        <form method="get" action="" class="lista-busca">
+            <input 
+                type="text" 
+                name="q" 
+                placeholder="Buscar por lote..." 
+                value="{{ search_query|default:'' }}" 
+                class="input-busca"
+            >
+            <button type="submit" class="botao-acao botao-buscar">Buscar</button>
+            <a href="{% url 'listamovimentacao' %}" class="botao-acao botao-limpar">Limpar</a>
+            <a href="{% url 'criarmovimentacao' %}" class="botao-acao botao-adicionar">Adicionar</a>
+        </form>
+    </div>
+
+    <div class="tabela-wrapper" style="margin-top: 24px;">
+        <table class="tabela-lista">
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Lote de Origem</th>
+                    <th>Lote de Destino</th>
+                    <th>Curral de Destino</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for movimentacao in movimentacoes %}
+                <tr onclick="window.location.href='{% url 'detalhemovimentacao' pk=movimentacao.pk %}'" class="linha-tabela">
+                    <td>{{ movimentacao.data_movimentacao|date:"d/m/Y" }}</td>
+                    <td>{{ movimentacao.lote_origem.nome_lote }}</td>
+                    <td>{{ movimentacao.lote_destino.nome_lote }}</td>
+                    <td>{{ movimentacao.curral_destino.nome_curral }}</td>
+                    <td>{{ movimentacao.status.nome_status }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="sem-registro">Nenhuma movimentação encontrada.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

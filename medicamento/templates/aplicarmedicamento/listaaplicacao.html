@@ -33,11 +33,11 @@
       <tbody>
         {% if aplicacoes %}
           {% for aplicacao in aplicacoes %}
-            <tr class="linha-tabela">
+            <tr class="linha-tabela" style="cursor:pointer;" onclick="window.location='{% url 'detalheaplicacao' aplicacao.pk %}'">
               <td>{{ aplicacao.data_aplicacao_medicamento }}</td>
               <td>{{ aplicacao.boi }}</td>
-              <td>{{ aplicacao.responsavel_tecnico }}</td>
-              <td>{{ aplicacao.doenca }}</td>
+              <td>{{ aplicacao.responsavel_tecnico|default:"-" }}</td>
+              <td>{{ aplicacao.doenca|default:"-" }}</td>
             </tr>
           {% endfor %}
         {% else %}
@@ -50,3 +50,4 @@
   </div>
 </div>
 {% endblock %}
+  

@@ -54,6 +54,16 @@ class SelecaoLoteForm(forms.Form):
         label="Selecione o Lote para a Venda",
         help_text="Apenas os animais ativos deste lote serão listados."
     )
+    
+class SaidaManejoForm(forms.ModelForm):
+    protocolo_sanitario = forms.ModelChoiceField(
+        queryset=ProtocoloSanitario.objects.all(),
+        label="Selecione o Protocolo Sanitário para a Venda",
+        required=True
+    )
+    class Meta:
+        model = Manejo
+        fields = ['protocolo_sanitario']
 
 class BoiSaidaForm(forms.Form):
     boi_id = forms.IntegerField(widget=forms.HiddenInput())
@@ -125,7 +135,7 @@ class MovimentacaoDataForm(forms.Form):
     boi_id = forms.IntegerField(widget=forms.HiddenInput())
     peso_movimentacao = forms.DecimalField(label="Novo Peso (kg)", required=True)
 
-from django.forms import inlineformset_factory
+
 
 ParametroMovimentacaoFormSet = inlineformset_factory(
     Manejo, ParametroManejo, form=ParametroMovimentacaoForm,

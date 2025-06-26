@@ -1,5 +1,5 @@
 from django.urls import path
-from manejo.views import criar_manejo_entrada, manejo_saida_venda, manejo_movimentacao, ManejoListView, ManejoDetailView, ManejoUpdateView, ManejoDeleteView
+from manejo.views import criar_manejo_entrada, manejo_saida_venda, manejo_movimentacao, ManejoListView, ManejoDetailView, ManejoUpdateView
 
 
 urlpatterns = [
@@ -10,5 +10,4 @@ urlpatterns = [
     path('lista/<str:tipo>/', ManejoListView.as_view(), name='listamanejo_filtrada'),
     path('<int:pk>/',ManejoDetailView.as_view(),name='detalhemanejo'),
     path('<int:pk>/editar/', ManejoUpdateView.as_view(), name='editarmanejo'),
-    path('<int:pk>/deletar/', ManejoDeleteView.as_view(), name='deletarmanejo'),
 ]

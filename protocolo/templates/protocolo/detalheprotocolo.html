@@ -1,22 +1,60 @@
-<h2>Detalhes do Protocolo</h2>
+{% extends 'base.html' %}
 
-<p><strong>Nome:</strong> {{ protocolo.nome_protocolo }}</p>
-<p><strong>Motivo:</strong> {{ protocolo.motivo_protocolo }}</p>
-<p><strong>Responsável Técnico:</strong> {{ protocolo.responsavel_tecnico }}</p>
+{% block title %}Detalhes do Protocolo Sanitário{% endblock %}
 
-<hr>
-<h3>Medicamentos Associados</h3>
-{% if medicamentos %}
-    <ul>
-        {% for pm in medicamentos %}
-            <li>{{ pm.medicamento.nome_medicamento }} – {{ pm.dose_protocolo }} ml</li>
-        {% endfor %}
-    </ul>
-{% else %}
-    <p>Nenhum medicamento cadastrado.</p>
-{% endif %}
+{% block content %}
+<div class="form-container">
 
-<hr>
-<a href="{% url 'atualizarprotocolo' protocolo.pk %}">✏️ Editar</a> |
-<a href="{% url 'deletarprotocolo' protocolo.pk %}">🗑️ Excluir</a> |
-<a href="{% url 'listaprotocolo' %}">🔙 Voltar à Lista</a>
+  <div class="form-actions no-border" style="justify-content: flex-end; margin-bottom: 20px;">
+    <a href="{% url 'atualizarprotocolo' pk=object.pk %}" class="botao-acao botao-adicionar">Editar</a>
+    <a href="{% url 'deletarprotocolo' pk=object.pk %}" class="botao-acao botao-morte">Excluir</a>
+    <a href="{% url 'listaprotocolo' %}" class="botao-acao botao-limpar">Voltar</a>
+  </div>
+
+  <h2>Detalhes do Protocolo Sanitário</h2>
+
+  <div class="form-grid">
+    <div class="form-group">
+      <label>Nome do Protocolo</label>
+      <input type="text" value="{{ object.nome_protocolo }}" readonly>
+    </div>
+
+    <div class="form-group">
+      <label>Motivo</label>
+      <input type="text" value="{{ object.motivo_protocolo }}" readonly>
+    </div>
+
+    <div class="form-group">
+      <label>Responsável Técnico</label>
+      <input type="text" value="{{ object.responsavel_tecnico.nome_responsavel }}" readonly>
+    </div>
+  </div>
+
+  <div class="form-section-divider">
+    <h3>Medicamentos do Protocolo</h3>
+    {% if object.protocolos_por_sanitario.exists %}
+    <div class="tabela-wrapper">
+      <table class="tabela-lista">
+        <thead>
+          <tr>
+            <th>Medicamento</th>
+            <th>Dose (ml)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in object.protocolos_por_sanitario.all %}
+          <tr>
+            <td>{{ item.medicamento.nome_medicamento }}</td>
+            <td>{{ item.dose_protocolo }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+      <p class="sem-registro">Nenhum medicamento vinculado a este protocolo.</p>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

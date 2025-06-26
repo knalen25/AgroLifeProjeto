@@ -1,72 +1,135 @@
 {% extends 'base.html' %}
-
-{% block title %}Detalhes do Boi{% endblock %}
+{% block title %}Ficha do Boi{% endblock %}
 
 {% block content %}
-<div class="detail-card">
-    <h1>Detalhes do Boi: {{ object.brinco }}</h1>
-
-    <p><strong>ID:</strong> {{ object.idboi }}</p>
-    <p><strong>Brinco:</strong> {{ object.brinco }}</p>
-    {% if object.chip %}
-    <p><strong>Chip:</strong> {{ object.chip }}</p>
-    {% endif %}
-
-    <p><strong>Peso na Entrada:</strong> {{ object.peso_entrada }} kg</p>
-    {% if object.peso_saida %}
-    <p><strong>Peso na Saída:</strong> {{ object.peso_saida }} kg</p>
-    {% endif %}
-
-    <p><strong>Data de Nascimento:</strong> {{ object.data_nascimento }}</p>
-    <p><strong>Data de Entrada:</strong> {{ object.data_entrada }}</p>
-    {% if object.data_saida %}
-    <p><strong>Data de Saída:</strong> {{ object.data_saida }}</p>
-    {% endif %}
-    {% if object.data_morte %}
-    <p><strong>Data de Morte:</strong> {{ object.data_morte }}</p>
-    {% endif %}
-
-    {% if object.motivo_morte %}
-    <p><strong>Motivo da Morte:</strong> {{ object.motivo_morte }}</p>
-    {% endif %}
-    <p><strong>Necropsia:</strong> {% if object.necropsia %}Sim{% else %}Não{% endif %}</p>
-
-    <p><strong>Sexo:</strong> {{ object.sexo.tipo_sexo }}</p>
-    {% if object.fornecedor %}
-    <p><strong>Fornecedor:</strong> {{ object.fornecedor.nome_fornecedor }}</p>
-    {% endif %}
-    <p><strong>Raça:</strong> {{ object.raca.nome_raca }}</p>
-    <p><strong>Status:</strong> {{ object.status_boi.nome_status }}</p>
-    {% if object.lote %}
-    <p><strong>Lote:</strong> {{ object.lote }}</p>
-    {% endif %}
-
-    <h2>Histórico de Pesagens</h2>
-    {% if object.pesagens.exists %}
-    <ul>
-        {% for peso in object.pesagens.all %}
-        <li>{{ peso.data_movimentacao }}: {{ peso.peso_movimentacao }} kg</li>
-        {% endfor %}
-    </ul>
-    {% else %}
-    <p>Sem registros de pesagem.</p>
-    {% endif %}
-
-    <h2>Projeções de Peso</h2>
-    {% if object.projecoes_peso.exists %}
-    <ul>
-        {% for proj in object.projecoes_peso.all %}
-        <li>{{ proj.data_projetado }}: {{ proj.peso_projetado }} kg</li>
-        {% endfor %}
-    </ul>
-    {% else %}
-    <p>Sem projeções de peso.</p>
-    {% endif %}
-
-    <div class="buttons-container">
-        <a href="{% url 'atualizaboi' pk=object.pk %}" class="btn btn-primary">Editar</a>
-        <a href="{% url 'deletaboi' pk=object.pk %}" class="btn btn-secondary">Excluir</a>
-        <a href="{{ request.META.HTTP_REFERER|default:'#' }}" class="btn btn-danger">Voltar</a>
+<div class="lista-container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+        <h2>Ficha do Boi</h2>
+        <a href="{% url 'atualizaboi' boi.pk %}" class="botao-acao botao-adicionar" style="background-color: #f59e0b;">
+          <i class='bx bx-edit'></i> Editar
+        </a>
     </div>
+  <div class="form-grid">
+    <div class="form-group">
+      <label>Brinco</label>
+      <input type="text" value="{{ boi.brinco }}" disabled>
+    </div>
+    <div class="form-group">
+      <label>Chip</label>
+      <input type="text" value="{{ boi.chip }}" disabled>
+    </div>
+    <div class="form-group">
+      <label>Status</label>
+      <input type="text" value="{{ boi.status_boi.nome_status }}" disabled>
+    </div>
+  </div>
+
+  <div style="margin: 20px 0;">
+    <button class="botao-acao botao-buscar" onclick="mostrarAba('informacoes')">Informações</button>
+    <button class="botao-acao botao-limpar" onclick="mostrarAba('saida')">Saída</button>
+    <button class="botao-acao botao-limpar" onclick="mostrarAba('morte')">Morte</button>
+    <button class="botao-acao botao-limpar" onclick="mostrarAba('pesagens')">Pesagens</button>
+  </div>
+
+  <div id="informacoes" class="aba-ativa">
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Sexo</label>
+        <input type="text" value="{{ boi.sexo.tipo_sexo }}" disabled>
+      </div>
+      <div class="form-group">
+        <label>Raça</label>
+        <input type="text" value="{{ boi.raca.nome_raca }}" disabled>
+      </div>
+      <div class="form-group">
+        <label>Fornecedor</label>
+        <input type="text" value="{{ boi.fornecedor.nome_fornecedor }}" disabled>
+      </div>
+      <div class="form-group">
+        <label>Lote</label>
+        <input type="text" value="{{ boi.lote.nome_lote }}" disabled>
+      </div>
+      <div class="form-group">
+        <label>Peso de Entrada</label>
+        <input type="text" value="{{ boi.peso_entrada }}" disabled>
+      </div>
+      <div class="form-group">
+        <label>Data de Nascimento</label>
+        <input type="text" value="{{ boi.data_nascimento|date:'d/m/Y' }}" disabled>
+      </div>
+      <div class="form-group">
+        <label>Data de Entrada</label>
+        <input type="text" value="{{ boi.data_entrada|date:'d/m/Y' }}" disabled>
+      </div>
+      <div class="form-group">
+        <label>Peso Projetado</label>
+        <input type="text" value="{{ peso_projetado.peso_projetado }} kg - {{ peso_projetado.data_projetado|date:'d/m/Y' }}" disabled>
+      </div>
+    </div>
+  </div>
+
+  <div id="saida" class="aba-conteudo hidden">
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Peso de Saída</label>
+        <input type="text" value="{{ boi.peso_saida }}" disabled>
+      </div>
+      <div class="form-group">
+        <label>Data de Saída</label>
+        <input type="text" value="{{ boi.data_saida|date:'d/m/Y' }}" disabled>
+      </div>
+    </div>
+  </div>
+
+  <div id="morte" class="aba-conteudo hidden">
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Data de Morte</label>
+        <input type="text" value="{{ boi.data_morte|date:'d/m/Y' }}" disabled>
+      </div>
+      <div class="form-group">
+        <label>Motivo da Morte</label>
+        <input type="text" value="{{ boi.motivo_morte }}" disabled>
+      </div>
+      <div class="form-group">
+        <label>Necropsia</label>
+        <input type="text" value="{% if boi.necropsia %}Sim{% else %}Não{% endif %}" disabled>
+      </div>
+    </div>
+  </div>
+
+  <div id="pesagens" class="aba-conteudo hidden">
+    <table class="tabela-lista">
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Peso (kg)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for pesagem in boi.pesagens.all %}
+        <tr>
+          <td>{{ pesagem.data_movimentacao|date:'d/m/Y' }}</td>
+          <td>{{ pesagem.peso_movimentacao }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="2" class="sem-registro">Nenhuma pesagem registrada.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
+
+<script>
+function mostrarAba(id) {
+  document.querySelectorAll('.aba-conteudo, .aba-ativa').forEach(el => el.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+}
+</script>
+
+<style>
+.hidden { display: none; }
+</style>
 {% endblock %}

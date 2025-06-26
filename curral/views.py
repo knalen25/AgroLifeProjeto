@@ -9,6 +9,7 @@ class ListaCurralView(ListView):
     model = Curral
     template_name = 'curral/listacurral.html'
     context_object_name = 'currais'
+    
 
     def get_queryset(self):
         queryset = super().get_queryset().order_by('nome_curral')

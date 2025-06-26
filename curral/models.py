@@ -41,7 +41,7 @@ class Curral(models.Model):
         decimal_places=2,
         help_text="Área total do curral em metros quadrados."
     )
-    area_coche = models.DecimalField(
+    area_cocho = models.DecimalField(
         max_digits=6,
         decimal_places=2,
         help_text="Área destinada à cocheira (descanso) dentro do curral, em metros quadrados."

@@ -1,20 +1,56 @@
 {% extends 'base.html' %}
 
-{% block title %}Detalhes do Curral{% endblock %}
+{% block title %}Detalhe do Curral{% endblock %}
 
 {% block content %}
+<div class="form-container">
+    <div class="form-actions no-border" style="justify-content: flex-end; margin-bottom: 20px;">
+        <a href="{% url 'atualizacurral' pk=object.pk %}" class="botao-acao botao-adicionar">
+            <i class="bx bx-edit"></i> Editar
+        </a>
+        <a href="{% url 'deletacurral' pk=object.pk %}" class="botao-acao botao-morte">
+            <i class="bx bx-trash"></i> Excluir
+        </a>
+        <a href="{% url 'listacurral' %}" class="botao-acao botao-limpar">Voltar</a>
+    </div>
 
-<div class="detail-card">
-    <h1>{{ curral.nome }}</h1>
-    <p><strong>Peso Mínimo:</strong> {{ curral.peso_min }}</p>
-    <p><strong>Peso Máximo:</strong> {{ curral.peso_max }}</p>
-    <p><strong>Capacidade Máxima:</strong> {{ curral.capacidade_max }}</p>
-    <p><strong>Tipo de Curral:</strong> {{ curral.curral_type.tipo_curral }}</p>
-    <div class="buttons-container">
-        <a href="{% url 'atualizacurral' pk=object.pk %}" class="btn btn-primary">Editar</a>
-        <a href="{% url 'deletacurral' pk=object.pk %}" class="btn btn-secondary">Excluir</a>
-        <a href="{% url 'listacurral' %}" class="btn btn-danger">Voltar</a>
+    <h2>Detalhes do Curral</h2>
+
+    <div class="form-grid">
+        <div class="form-group">
+            <label>Nome do Curral</label>
+            <input type="text" readonly value="{{ curral.nome_curral }}">
+        </div>
+
+        <div class="form-group">
+            <label>Tipo de Curral</label>
+            <input type="text" readonly value="{{ curral.tipo_curral.nome_tipo_curral }}">
+        </div>
+
+        <div class="form-group">
+            <label>Peso Mínimo</label>
+            <input type="text" readonly value="{{ curral.peso_min }} kg">
+        </div>
+
+        <div class="form-group">
+            <label>Peso Máximo</label>
+            <input type="text" readonly value="{{ curral.peso_max }} kg">
+        </div>
+
+        <div class="form-group">
+            <label>Área Total</label>
+            <input type="text" readonly value="{{ curral.area_m2 }} m²">
+        </div>
+
+        <div class="form-group">
+            <label>Área de Cocho</label>
+            <input type="text" readonly value="{{ curral.area_cocho }} m²">
+        </div>
+
+        <div class="form-group">
+            <label>Status</label>
+            <input type="text" readonly value="{% if curral.ativo %}Ativo{% else %}Inativo{% endif %}">
+        </div>
     </div>
 </div>
-
 {% endblock %}

@@ -1,22 +1,27 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+
+{% block title %}Atualizar Curral{% endblock %}
 
 {% block content %}
-
-<div class="main-container">
-    <form method="post" enctype="multipart/form-data" class="form-card">
-        {% csrf_token %}
-        <h1>Editar Curral</h1>
-        <table>
-
-            {{ form.as_table }}
-            
-        </table>
-        <div>
-            <div class="buttons-container">
-                <input type="submit" value="Cadastrar" class="btn btn-primary">
-                <a href="{% url 'detalhecurral' pk=object.pk %}" class="btn btn-secondary">Cancelar</a>
-            </div>
+<div class="form-container">
+  <h2>Atualizar Curral: {{ form.instance.nome_curral }}</h2>
+  <form method="post">
+    {% csrf_token %}
+    <div class="form-grid">
+      {% for field in form.visible_fields %}
+        <div class="form-group">
+          {{ field.label_tag }}
+          {{ field }}
+          {% if field.errors %}
+            <div class="text-danger">{{ field.errors }}</div>
+          {% endif %}
         </div>
-    </form>
+      {% endfor %}
+    </div>
+    <div class="form-actions">
+      <a href="{% url 'listacurral' %}" class="botao-acao botao-limpar">Cancelar</a>
+      <button type="submit" class="botao-acao botao-adicionar">Salvar Alterações</button>
+    </div>
+  </form>
 </div>
 {% endblock %}

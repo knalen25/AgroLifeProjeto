@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}Atualizar Aplicação de Evento{% endblock %}
+
+{% block content %}
+<div class="form-container">
+  <h2>Atualizar Aplicação de Evento</h2>
+
+  <form method="post">
+    {% csrf_token %}
+    <div class="form-grid">
+      {{ form.as_p }}
+    </div>
+
+    <div class="form-actions">
+      <a href="{% url 'listaaplicacaoevento' %}" class="botao-acao botao-limpar">Cancelar</a>
+      <button type="submit" class="botao-acao botao-adicionar">Salvar</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

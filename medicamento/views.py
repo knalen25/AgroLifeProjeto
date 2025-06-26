@@ -33,6 +33,9 @@ class MedicamentoDetailView(DetailView):
     context_object_name = 'medicamento'    
     
 
+
+
+
 class AplicacaoEventoCreateView(CreateView):
     model = AplicacaoEvento
     form_class = AplicacaoEventoForm

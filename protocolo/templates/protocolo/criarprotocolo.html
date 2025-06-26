@@ -1,43 +1,113 @@
-<form method="post">
-    {% csrf_token %}
-    {{ protocolo_form.as_p }}
-    {{ formset.management_form }}
+{% extends 'base.html' %}
 
-    <div id="formset-container">
-        {% for form in formset %}
-            <fieldset style="border: 1px solid #ccc; margin-bottom: 10px;">
-                {{ form.as_p }}
-            </fieldset>
+{% block content %}
+<div class="form-container">
+    <h2>Criar Novo Protocolo Sanitário</h2>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-grid">
+            {% for field in protocolo_form %}
+            <div class="form-group">
+                {{ field.label_tag }}
+                {{ field }}
+                {{ field.errors }}
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="form-section-divider">
+            <h3>Medicamentos do Protocolo</h3>
+        </div>
+
+        {{ formset.management_form }}
+
+        <div id="formset-container">
+            {% for form in formset %}
+            <div class="form-grid formset-item">
+                {% for field in form %}
+                {# CONDIÇÃO ATUALIZADA PARA OCULTAR OS NOVOS CAMPOS #}
+                <div class="form-group {% if field.name == 'idprotocolo_medicamento' or field.name == 'protocolo_sanitario' or field.name == 'DELETE' %}campo-oculto{% endif %}">
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {{ field.errors }}
+                </div>
+                {% endfor %}
+                <div class="form-group-action">
+                    <button type="button" class="botao-acao botao-remover remove-form">Remover</button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="form-actions form-actions-add">
+            <button type="button" id="add-form" class="botao-acao botao-adicionar">Adicionar Medicamento</button>
+        </div>
+
+        {% if medicamentos %}
+            <div class="form-section-divider">
+                <h3>Medicamentos já adicionados:</h3>
+            </div>
+            <div class="formset-item">
+                <ul>
+                    {% for pm in medicamentos %}
+                        <li>{{ pm.medicamento.nome_medicamento }} - {{ pm.dose_protocolo }} ml</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        <div class="form-actions">
+            <button type="submit" class="botao-acao botao-adicionar">Salvar Protocolo</button>
+            
+            <a href="#" class="botao-acao botao-limpar">Cancelar</a> 
+        </div>
+    </form>
+</div>
+
+<div id="empty-form" class="campo-oculto">
+    <div class="form-grid formset-item">
+        {% for field in formset.empty_form %}
+            
+            <div class="form-group {% if field.name == 'idprotocolo_medicamento' or field.name == 'protocolo_sanitario' or field.name == 'DELETE' %}campo-oculto{% endif %}">
+                {{ field.label_tag }}
+                {{ field }}
+                {{ field.errors }}
+            </div>
         {% endfor %}
-    </div>
-
-    <button type="button" onclick="addForm()">Adicionar Medicamento</button>
-    <br><br>
-    <button type="submit">Salvar</button>
-
-    <div id="empty-form" style="display:none;">
-        <div class="formset-form">
-            {{ formset.empty_form.as_p|safe }}
+        <div class="form-group-action">
+            <button type="button" class="botao-acao botao-remover remove-form">Remover</button>
         </div>
     </div>
-</form>
-
-{% if medicamentos %}
-    <h3>Medicamentos já adicionados:</h3>
-    <ul>
-        {% for pm in medicamentos %}
-            <li>{{ pm.medicamento.nome_medicamento }} - {{ pm.dose_protocolo }} ml</li>
-        {% endfor %}
-    </ul>
-{% endif %}
+</div>
 
 <script>
-function addForm() {
-    const container = document.getElementById('formset-container');
-    const total = document.getElementById('id_form-TOTAL_FORMS');
-    const formIdx = total.value;
-    const newForm = document.getElementById('empty-form').innerHTML.replace(/__prefix__/g, formIdx);
-    container.insertAdjacentHTML('beforeend', newForm);
-    total.value = parseInt(formIdx) + 1;
-}
+document.addEventListener('DOMContentLoaded', function() {
+    const formsetContainer = document.getElementById('formset-container');
+    const addButton = document.getElementById('add-form');
+    const emptyFormTemplate = document.getElementById('empty-form').innerHTML;
+    const totalFormsInput = document.querySelector('input[name="{{ formset.prefix }}-TOTAL_FORMS"]');
+
+    // Função para adicionar um novo formulário
+    addButton.addEventListener('click', function() {
+        let currentFormCount = parseInt(totalFormsInput.value);
+        let newFormHtml = emptyFormTemplate.replace(/__prefix__/g, currentFormCount);
+        
+        formsetContainer.insertAdjacentHTML('beforeend', newFormHtml);
+        
+        totalFormsInput.value = currentFormCount + 1;
+    });
+
+    // Função para remover um formulário (usando delegação de evento)
+    formsetContainer.addEventListener('click', function(e) {
+        if (e.target && e.target.classList.contains('remove-form')) {
+            const formItem = e.target.closest('.formset-item');
+            if (formItem) {
+                formItem.remove();
+            }
+        }
+    });
+});
 </script>
+{% endblock %}

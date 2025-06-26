@@ -28,7 +28,7 @@ class StatusManejo(models.Model):
 
 class Manejo(models.Model):
     idManejo = models.AutoField(primary_key=True)
-    
+
     tipo_manejo = models.ForeignKey(
         TipoManejo,
         on_delete=models.PROTECT,

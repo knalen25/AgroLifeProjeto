@@ -28,7 +28,9 @@ class BoiModelForm(forms.ModelForm):
         }
 
     def save(self, commit=True):
-        self.instance.status_boi = Boi.status_boi.ATIVO
+        # self.instance.status_boi = Boi.status_boi.ATIVO
+        status_ativo = StatusBoi.objects.get(nome_status='Ativo')
+        self.instance.status_boi = status_ativo
         return super().save(commit=commit)
 
 class BoiMorteForm(forms.ModelForm):

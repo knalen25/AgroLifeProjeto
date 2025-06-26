@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}Atualizar Medicação{% endblock %}
+
+{% block content %}
+<div class="form-container">
+  <h2>Atualizar Medicação</h2>
+  <form method="post">
+    {% csrf_token %}
+    <div class="form-grid">
+      {% for field in form.visible_fields %}
+      <div class="form-group">
+        {{ field.label_tag }}
+        {{ field }}
+        {% if field.errors %}
+        <div class="text-danger">{{ field.errors|striptags }}</div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    <div class="form-actions">
+      <a href="{% url 'listamedicamento' %}" class="botao-acao botao-limpar">Cancelar</a>
+      <button type="submit" class="botao-acao botao-adicionar">Salvar</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

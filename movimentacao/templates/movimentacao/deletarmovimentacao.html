@@ -1,10 +1,18 @@
-{% extends 'home/base.html' %}
+{% extends 'base.html' %}
+
+{% block title %}Excluir Movimentação{% endblock %}
+
 {% block content %}
-<h2>Confirmar Exclusão</h2>
-<p>Tem certeza que deseja excluir a movimentação do dia {{ object.data_movimentacao }}?</p>
-<form method="post">
-  {% csrf_token %}
-  <button type="submit">Confirmar</button>
-</form>
-<a href="{% url 'listamovimentacao' %}">Cancelar</a>
+<div class="form-container">
+  <h2>Confirmação de Exclusão</h2>
+  <p>Tem certeza de que deseja excluir a movimentação realizada em <strong>{{ movimentacao.data_movimentacao }}</strong>, do lote <strong>{{ movimentacao.lote_origem }}</strong> para o lote <strong>{{ movimentacao.lote_destino }}</strong> no curral <strong>{{ movimentacao.curral_destino }}</strong>?</p>
+
+  <form method="post">
+    {% csrf_token %}
+    <div class="form-actions">
+      <a href="{% url 'listamovimentacao' %}" class="botao-acao botao-limpar">Cancelar</a>
+      <button type="submit" class="botao-acao botao-morte">Confirmar Exclusão</button>
+    </div>
+  </form>
+</div>
 {% endblock %}

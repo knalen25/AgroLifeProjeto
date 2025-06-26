@@ -4,6 +4,7 @@ from django.urls import reverse_lazy
 from protocolo.models import ProtocoloSanitario
 from protocolo.forms import ProtocoloSanitarioForm, ProtocoloMedicamentoFormSet
 from django.views.generic import ListView, DeleteView, UpdateView, DetailView
+from django.db.models import Q
 
 
 class ProtocoloCreateView(View):
@@ -29,11 +30,7 @@ class ProtocoloCreateView(View):
 
             medicamentos = protocolo.protocolos_por_sanitario.select_related('medicamento')
 
-            return render(request, self.template_name, {
-                'protocolo_form': ProtocoloSanitarioForm(instance=protocolo),
-                'formset': ProtocoloMedicamentoFormSet(instance=protocolo, prefix='form'),
-                'medicamentos': medicamentos
-            })
+            return redirect(reverse_lazy('listaprotocolo'))
 
         return render(request, self.template_name, {
             'protocolo_form': protocolo_form,
@@ -45,10 +42,30 @@ class ProtocoloListView(ListView):
     model = ProtocoloSanitario
     template_name = 'protocolo/listaprotocolo.html'
     context_object_name = 'protocolos'
+    paginate_by = 10 
 
     def get_queryset(self):
-        # Faz pré-carregamento dos medicamentos relacionados
-        return ProtocoloSanitario.objects.prefetch_related('protocolos_por_sanitario__medicamento')
+        
+        queryset = super().get_queryset().select_related('responsavel_tecnico').prefetch_related('protocolos_por_sanitario__medicamento')
+
+        
+        search_query = self.request.GET.get('q') 
+        
+        if search_query:
+            
+            query_filter = (
+                Q(nome_protocolo__icontains=search_query) |
+                Q(motivo_protocolo__icontains=search_query) |
+                Q(responsavel_tecnico__nome_responsavel_tecnico__icontains=search_query) 
+            )
+            queryset = queryset.filter(query_filter)
+
+        return queryset.order_by('-idprotocolo_sanitario')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['search_query'] = self.request.GET.get('q', '')
+        return context
 
 class ProtocoloUpdateView(View):
     template_name = 'protocolo/atualizarprotocolo.html'
@@ -85,7 +102,7 @@ class ProtocoloDeleteView(DeleteView):
     success_url = reverse_lazy('listaprotocolo')
     context_object_name = 'protocolo'
     
-class ProtocoloSanitarioDetailView(DetailView):
+class ProtocoloDetailView(DetailView):
     model = ProtocoloSanitario
     template_name = 'protocolo/detalheprotocolo.html'
     context_object_name = 'protocolo'

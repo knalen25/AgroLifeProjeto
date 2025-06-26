@@ -1,10 +1,29 @@
-{% extends 'home/base.html' %}
+{% extends 'base.html' %}
+
+{% block title %}Atualizar Movimentação{% endblock %}
+
 {% block content %}
-<h2>Editar Movimentação</h2>
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Salvar</button>
-</form>
-<a href="{% url 'listamovimentacao' %}">Cancelar</a>
+<div class="form-container">
+  <h2>Atualizar Movimentação</h2>
+
+  <form method="post">
+    {% csrf_token %}
+    <div class="form-grid">
+      {% for field in form.visible_fields %}
+        <div class="form-group">
+          {{ field.label_tag }}
+          {{ field }}
+          {% if field.errors %}
+            <div class="error">{{ field.errors }}</div>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="botao-acao botao-buscar">Salvar Alterações</button>
+      <a href="{% url 'listamovimentacao' %}" class="botao-acao botao-limpar">Cancelar</a>
+    </div>
+  </form>
+</div>
 {% endblock %}

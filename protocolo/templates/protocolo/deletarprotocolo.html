@@ -1,7 +1,16 @@
-<h2>Excluir Protocolo</h2>
-<p>Tem certeza que deseja excluir o protocolo "{{ protocolo.nome_protocolo }}"?</p>
-<form method="post">
-    {% csrf_token %}
-    <button type="submit">Sim, excluir</button>
-    <a href="{% url 'listaprotocolo' %}">Cancelar</a>
-</form>
+{% extends 'base.html' %}
+
+{% block title %}Excluir Protocolo Sanitário{% endblock %}
+
+{% block content %}
+<div class="form-container">
+  <h2>Confirmação de Exclusão</h2>
+  <p>Tem certeza que deseja excluir o protocolo <strong>{{ protocolo.nome_protocolo }}</strong>?</p>
+  <form method="post">{% csrf_token %}
+    <div class="form-actions">
+      <a href="{% url 'listaprotocolo' %}" class="botao-acao botao-limpar">Cancelar</a>
+      <button type="submit" class="botao-acao botao-morte">Excluir</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalhes do Medicamento{% endblock %}
+
+{% block content %}
+<div class="form-container">
+
+  <div class="form-actions no-border" style="justify-content: flex-end; margin-bottom: 20px;">
+    <a href="{% url 'updatemedicamento' pk=object.pk %}" class="botao-acao botao-adicionar">Editar</a>
+    <a href="{% url 'deletarmedicamento' pk=object.pk %}" class="botao-acao botao-morte">Excluir</a>
+    <a href="{% url 'listamedicamento' %}" class="botao-acao botao-limpar">Voltar</a>
+  </div>
+
+  <h2>Detalhes do Medicamento</h2>
+
+  <div class="form-grid">
+    <div class="form-group">
+      <label>Nome Comercial</label>
+      <input type="text" value="{{ object.nome_medicamento }}" readonly>
+    </div>
+
+    <div class="form-group">
+      <label>Dias de Carência</label>
+      <input type="text" value="{{ object.dias_de_carencia }} dias" readonly>
+    </div>
+
+    <div class="form-group">
+      <label>Preço por ml</label>
+      <input type="text" value="R$ {{ object.preco_ml }}" readonly>
+    </div>
+
+    <div class="form-group">
+      <label>Tipo de Medicamento</label>
+      <input type="text" value="{{ object.tipo_medicamento.nome_medicamento }}" readonly>
+    </div>
+
+    <div class="form-group">
+      <label>Princípio Ativo</label>
+      <input type="text" value="{{ object.principio_ativo.nome_principio_ativo }}" readonly>
+    </div>
+
+    <div class="form-group">
+      <label>Laboratório</label>
+      <input type="text" value="{{ object.laboratorio.nome_laboratorio }}" readonly>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

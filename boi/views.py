@@ -36,6 +36,14 @@ class BoiCreateView(CreateView):
 class BoiDetailView(DetailView):
     model = Boi
     template_name = 'boi/detalheboi.html'
+    context_object_name = 'boi'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        boi = self.get_object()
+        ultima_proj = boi.projecoes_peso.order_by('-data_projetado').first()
+        context['peso_projetado'] = ultima_proj
+        return context
         
 class BoiUpdateView(UpdateView):
     model = Boi
@@ -52,7 +60,7 @@ class BoiMorteView(UpdateView):
     model = Boi
     form_class = BoiMorteForm
     template_name = "boi/registrarmorte.html"
-    success_url = reverse_lazy('lista_morte')
+    success_url = reverse_lazy('listamorte')
 
 class ListaBoiMorteView(ListView):
     model = Boi

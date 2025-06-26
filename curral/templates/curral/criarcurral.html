@@ -1,18 +1,25 @@
 {% extends "base.html" %}
 
 {% block content %}
-
-    <form method="post" enctype="multipart/form-data" class="form-card">
+<div class="form-container">
+    <h2>Criar Curral</h2>
+    <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        <h1>Criar Curral</h1>
-        <table>
-            {{ form.as_table }}
-        </table>
-        <div>
-            <div class="buttons-container">
-                <input type="submit" value="Cadastrar" class="btn btn-primary">
-                <a href="{% url 'listacurral' %}" class="btn btn-secondary">Cancelar</a>
+        
+        <div class="form-grid">
+            {# Itera sobre os campos do formulário para manter a flexibilidade #}
+            {% for field in form %}
+            <div class="form-group">
+                {{ field.label_tag }}
+                {{ field }}
             </div>
+            {% endfor %}
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="botao-acao botao-adicionar"> Cadastrar </button>
+            <a href="{% url 'listacurral' %}" class="botao-acao botao-limpar"> Cancelar </a>
         </div>
     </form>
-{% endblock %} 
+</div>
+{% endblock %}

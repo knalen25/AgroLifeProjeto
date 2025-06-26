@@ -1,13 +1,18 @@
 {% extends 'base.html' %}
 
+{% block title %}Excluir Aplicação{% endblock %}
+
 {% block content %}
-<div class="container mt-4">
-    <h2>Excluir Aplicação de Medicamento</h2>
-    <p>Tem certeza que deseja excluir a aplicação feita no boi "{{ object.boi }}" em "{{ object.data_aplicacao_medicamento }}"?</p>
-    <form method="post">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-danger">Confirmar Exclusão</button>
-        <a href="{% url 'listaaplicacao' %}" class="btn btn-secondary">Cancelar</a>
-    </form>
+<div class="form-container">
+    <h2>Confirmação de Exclusão</h2>
+    <p>Tem certeza que deseja excluir esta aplicação feita no boi <strong>{{ object.boi.brinco }}</strong> na data <strong>{{ object.data_aplicacao_medicamento }}</strong>?</p>
+
+    <div class="form-actions">
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="botao-acao botao-morte">Sim, Excluir</button>
+            <a href="{% url 'listaaplicacao' %}" class="botao-acao botao-limpar">Cancelar</a>
+        </form>
+    </div>
 </div>
 {% endblock %}

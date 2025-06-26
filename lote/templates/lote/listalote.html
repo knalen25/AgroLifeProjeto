@@ -24,10 +24,11 @@
     <table class="tabela-lista">
       <thead>
         <tr>
-          <th>Nome</th>
-          <th>Situação</th>
-          <th>Peso Médio</th>
-          <th>Qtd Bois</th>
+          <th>Nome do Lote</th>
+          <th>Data de Início</th>
+          <th>Curral</th>
+          <th>Total de Animais</th> {# Adicionamos a nova coluna #}
+          <th>Ativo</th>
         </tr>
       </thead>
       <tbody>
@@ -35,14 +36,19 @@
           {% for lote in lotes %}
             <tr onclick="window.location.href='{% url 'detalhelote' pk=lote.pk %}'" class="linha-tabela">
               <td>{{ lote.nome_lote }}</td>
-              <td>{{ lote.situacao.nome_situacao }}</td>
-              <td>{{ lote.peso_medio }}</td>
-              <td>{{ lote.qtd_bois }}</td>
+              <td>{{ lote.data_inicio_lote|date:"d/m/Y" }}</td>
+              <td>{{ lote.curral.nome_curral }}</td>
+              
+              {# Exibindo o novo campo calculado #}
+              <td>{{ lote.total_animais }}</td>
+              
+              <td>{{ lote.ativo|yesno:"Sim,Não" }}</td>
             </tr>
           {% endfor %}
         {% else %}
           <tr>
-            <td colspan="4" class="sem-registro">Nenhum registro encontrado.</td>
+            {# Colspan atualizado para 5 colunas #}
+            <td colspan="5" class="sem-registro">Nenhum registro encontrado.</td>
           </tr>
         {% endif %}
       </tbody>

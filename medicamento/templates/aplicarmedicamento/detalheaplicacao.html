@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalhes da Aplicação{% endblock %}
+
+{% block content %}
+<div class="form-container">
+
+  <div class="form-actions no-border" style="justify-content: flex-end; margin-bottom: 20px;">
+    <a href="{% url 'atualizaraplicacao' pk=object.pk %}" class="botao-acao botao-adicionar">Editar</a>
+    <a href="{% url 'deletaraplicacao' pk=object.pk %}" class="botao-acao botao-morte">Excluir</a>
+    <a href="{% url 'listaaplicacao' %}" class="botao-acao botao-limpar">Voltar</a>
+  </div>
+
+  <h2>Detalhes da Aplicação</h2>
+
+  <div class="form-grid">
+    <div class="form-group">
+      <label>Data da Aplicação</label>
+      <input type="text" value="{{ object.data_aplicacao_medicamento }}" readonly>
+    </div>
+
+    <div class="form-group">
+      <label>Boi</label>
+      <input type="text" value="{{ object.boi }}" readonly>
+    </div>
+
+    <div class="form-group">
+      <label>Doença</label>
+      <input type="text" value="{{ object.doenca.nome_doenca|default:'Não informado' }}" readonly>
+    </div>
+
+    <div class="form-group">
+      <label>Responsável Técnico</label>
+      <input type="text" value="{{ object.responsavel_tecnico.nome_responsavel|default:'Não informado' }}" readonly>
+    </div>
+  </div>
+
+  <div class="form-section-divider">
+    <h3>Medicamentos Aplicados</h3>
+    {% if object.medicamentoaplicado_set.exists %}
+      <div class="tabela-wrapper">
+        <table class="tabela-lista">
+          <thead>
+            <tr>
+              <th>Medicamento</th>
+              <th>Dose Aplicada</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in object.medicamentoaplicado_set.all %}
+              <tr>
+                <td>{{ item.medicamento.nome_medicamento }}</td>
+                <td>{{ item.dose_aplicada }} ml</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="sem-registro">Nenhum medicamento registrado para esta aplicação.</p>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

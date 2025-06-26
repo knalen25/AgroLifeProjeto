@@ -1,13 +1,25 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container mt-4">
+<div class="form-container">
     <h2>Cadastrar Novo Medicamento</h2>
     <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-success">Salvar</button>
-        <a href="{% url 'listamedicamento' %}" class="btn btn-secondary">Cancelar</a>
+        
+        <div class="form-grid">
+            
+            {% for field in form %}
+            <div class="form-group">
+                {{ field.label_tag }}
+                {{ field }}
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="botao-acao botao-adicionar">Salvar</button>
+            <a href="{% url 'listamedicamento' %}" class="botao-acao botao-limpar">Cancelar</a>
+        </div>
     </form>
 </div>
 {% endblock %}
