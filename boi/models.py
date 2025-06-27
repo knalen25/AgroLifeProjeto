@@ -73,11 +73,11 @@ class Boi(models.Model):
     )
     brinco = models.CharField(
         max_length=15,
+        unique=True,
     )
     chip = models.CharField(
         max_length=15,
-        blank=True,
-        null=True,
+        unique=True,
     )
     peso_entrada = models.DecimalField(
         max_digits=6,

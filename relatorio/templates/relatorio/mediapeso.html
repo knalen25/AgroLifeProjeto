@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="lista-container">
+    <h2 class="lista-titulo">Relatório de Médias de Peso por Manejo</h2>
+
+    <div class="form-section-divider">
+        <h3>Médias de Peso de Saída (Venda)</h3>
+    </div>
+    <div class="tabela-wrapper">
+        <table class="tabela-lista">
+            <thead>
+                <tr>
+                    <th>ID Manejo</th>
+                    <th>Data</th>
+                    <th>Protocolo</th>
+                    <th>Média de Peso de Saída</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for manejo in manejos_saida %}
+                <tr>
+                    <td>{{ manejo.idManejo }}</td>
+                    <td>{{ manejo.data_manejo|date:"d/m/Y" }}</td>
+                    <td>{{ manejo.protocolo_sanitario.nome_protocolo }}</td>
+                    <td>{{ manejo.media_peso_saida|floatformat:2 }} kg</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" class="sem-registro">Nenhum manejo de saída encontrado.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="form-section-divider">
+        <h3>Médias de Peso de Movimentação</h3>
+    </div>
+    <div class="tabela-wrapper">
+        <table class="tabela-lista">
+            <thead>
+                <tr>
+                    <th>ID Manejo</th>
+                    <th>Data</th>
+                    <th>Protocolo</th>
+                    <th>Média de Peso na Movimentação</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for manejo in manejos_movimentacao %}
+                <tr>
+                    <td>{{ manejo.idManejo }}</td>
+                    <td>{{ manejo.data_manejo|date:"d/m/Y" }}</td>
+                    <td>{{ manejo.protocolo_sanitario.nome_protocolo }}</td>
+                    <td>{{ manejo.media_peso_movimentacao|floatformat:2 }} kg</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" class="sem-registro">Nenhum manejo de movimentação encontrado.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

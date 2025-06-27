@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'medicamento',
     'movimentacao',
     'protocolo',
+    'relatorio',
 ]
 
 MIDDLEWARE = [

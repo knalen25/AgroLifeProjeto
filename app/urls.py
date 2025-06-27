@@ -19,4 +19,5 @@ urlpatterns = [
     path('protocolo/', include("protocolo.urls")),
     path('movimentacao/', include("movimentacao.urls")),
     path('manejo/', include('manejo.urls')),
+    path('relatorio', include('relatorio.urls')),
 ]

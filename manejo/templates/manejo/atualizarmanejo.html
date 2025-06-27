@@ -1,26 +1,111 @@
 {% extends "base.html" %}
 
-{% block title %}Atualizar Manejo #{{ manejo.idManejo }}{% endblock %}
-
 {% block content %}
-<div class="container-fluid">
-    <h2 class="h3 mb-4 text-gray-800">Atualizando o Manejo #{{ manejo.idManejo }}</h2>
+<div class="form-container">
+    <h2>Atualizando o Manejo #{{ manejo.idManejo }}</h2>
+    <p><strong>Tipo de Manejo:</strong> {{ manejo.tipo_manejo.nome_tipo_manejo }}</p>
 
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Edite os detalhes abaixo</h6>
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-section-divider" style="margin-top: 1rem;">
+            <h3>Detalhes Gerais</h3>
         </div>
-        <div class="card-body">
-            <form method="post">
-                {% csrf_token %}
-                
-                {{ form.as_p }}
+        <div class="form-grid">
+            {% for field in form %}
+                <div class="form-group">
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {{ field.errors }}
+                </div>
+            {% endfor %}
+        </div>
 
-                <hr>
-                <button type="submit" class="btn btn-primary">Salvar Alterações</button>
-                <a href="{% url 'detalhemanejo' manejo.pk %}" class="btn btn-secondary">Cancelar</a>
-            </form>
+        {# Renderiza o formset de parâmetros APENAS se ele existir no contexto (ou seja, se for um manejo de entrada) #}
+        {% if formset_parametros %}
+            <div class="form-section-divider">
+                <h3>Regras de Alocação (Parâmetros)</h3>
+            </div>
+            
+            {{ formset_parametros.management_form }}
+            <div id="parametros-form-container">
+                {% for form_param in formset_parametros %}
+                    <div class="form-grid formset-item">
+                        {% for field in form_param %}
+                            <div class="form-group {% if field.name == 'id' or field.name == 'manejo' or field.name == 'DELETE' %}campo-oculto{% endif %}">
+                                {{ field.label_tag }}
+                                {{ field }}
+                                {{ field.errors }}
+                            </div>
+                        {% endfor %}
+                        <div class="form-group-action">
+                            <button type="button" class="botao-acao botao-remover remove-form">Remover</button>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+             <div class="form-actions form-actions-add">
+                <button type="button" id="add-parametro-button" class="botao-acao botao-adicionar">Adicionar Regra</button>
+            </div>
+        {% endif %}
+
+        <div class="form-actions">
+            <button type="submit" class="botao-acao botao-adicionar">Salvar Alterações</button>
+            <a href="{% url 'detalhemanejo' manejo.pk %}" class="botao-acao botao-limpar">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+{# Template oculto para adicionar novas regras de parâmetro via JS #}
+{% if formset_parametros %}
+<div id="parametro-empty-form" class="campo-oculto">
+    <div class="form-grid formset-item">
+        {% for field in formset_parametros.empty_form %}
+            <div class="form-group {% if field.name == 'id' or field.name == 'manejo' or field.name == 'DELETE' %}campo-oculto{% endif %}">
+                {{ field.label_tag }}
+                {{ field }}
+            </div>
+        {% endfor %}
+        <div class="form-group-action">
+            <button type="button" class="botao-acao botao-remover remove-form">Remover</button>
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const container = document.getElementById('parametros-form-container');
+    if (!container) return;
+
+    const addButton = document.getElementById('add-parametro-button');
+    const emptyFormTemplate = document.getElementById('parametro-empty-form').innerHTML;
+    const totalFormsInput = document.querySelector(`input[name="parametros-TOTAL_FORMS"]`);
+
+    if(addButton) {
+        addButton.addEventListener('click', function() {
+            let formNum = parseInt(totalFormsInput.value);
+            const newForm = emptyFormTemplate.replace(/__prefix__/g, formNum);
+            container.insertAdjacentHTML('beforeend', newForm);
+            totalFormsInput.value = formNum + 1;
+        });
+    }
+
+    container.addEventListener('click', function(e) {
+        if (e.target && e.target.classList.contains('remove-form')) {
+            const formItem = e.target.closest('.formset-item');
+            if (formItem) {
+                const deleteInput = formItem.querySelector('input[type="checkbox"][name$="-DELETE"]');
+                if (deleteInput) {
+                    deleteInput.checked = true;
+                    formItem.style.display = 'none';
+                } else {
+                    formItem.remove();
+                }
+            }
+        }
+    });
+});
+</script>
+{% endif %}
+
 {% endblock %}

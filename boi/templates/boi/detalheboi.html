@@ -1,4 +1,6 @@
 {% extends 'base.html' %}
+
+
 {% block title %}Ficha do Boi{% endblock %}
 
 {% block content %}
@@ -9,6 +11,7 @@
           <i class='bx bx-edit'></i> Editar
         </a>
     </div>
+
   <div class="form-grid">
     <div class="form-group">
       <label>Brinco</label>
@@ -16,120 +19,117 @@
     </div>
     <div class="form-group">
       <label>Chip</label>
-      <input type="text" value="{{ boi.chip }}" disabled>
+      <input type="text" value="{{ boi.chip|default:'-' }}" disabled>
     </div>
     <div class="form-group">
       <label>Status</label>
       <input type="text" value="{{ boi.status_boi.nome_status }}" disabled>
     </div>
   </div>
-
-  <div style="margin: 20px 0;">
-    <button class="botao-acao botao-buscar" onclick="mostrarAba('informacoes')">Informações</button>
-    <button class="botao-acao botao-limpar" onclick="mostrarAba('saida')">Saída</button>
-    <button class="botao-acao botao-limpar" onclick="mostrarAba('morte')">Morte</button>
-    <button class="botao-acao botao-limpar" onclick="mostrarAba('pesagens')">Pesagens</button>
+  
+  <div style="margin: 20px 0; display: flex; flex-wrap: wrap; gap: 10px;">
+    <button type="button" class="botao-acao botao-buscar" onclick="mostrarAba('informacoes')">Informações Gerais</button>
+    <button type="button" class="botao-acao botao-limpar" onclick="mostrarAba('projecao')">Projeção de Desempenho</button>
+    <button type="button" class="botao-acao botao-limpar" onclick="mostrarAba('historico')">Histórico de Eventos</button>
+    <button type="button" class="botao-acao botao-limpar" onclick="mostrarAba('pesagens')">Pesagens de Movimentação</button>
+    {% if boi.peso_saida %}<button type="button" class="botao-acao botao-limpar" onclick="mostrarAba('saida')">Dados de Saída</button>{% endif %}
+    {% if boi.motivo_morte %}<button type="button" class="botao-acao botao-remover" onclick="mostrarAba('morte')">Dados de Morte</button>{% endif %}
   </div>
 
-  <div id="informacoes" class="aba-ativa">
+  <div id="informacoes" class="aba-conteudo">
     <div class="form-grid">
-      <div class="form-group">
-        <label>Sexo</label>
-        <input type="text" value="{{ boi.sexo.tipo_sexo }}" disabled>
-      </div>
-      <div class="form-group">
-        <label>Raça</label>
-        <input type="text" value="{{ boi.raca.nome_raca }}" disabled>
-      </div>
-      <div class="form-group">
-        <label>Fornecedor</label>
-        <input type="text" value="{{ boi.fornecedor.nome_fornecedor }}" disabled>
-      </div>
-      <div class="form-group">
-        <label>Lote</label>
-        <input type="text" value="{{ boi.lote.nome_lote }}" disabled>
-      </div>
-      <div class="form-group">
-        <label>Peso de Entrada</label>
-        <input type="text" value="{{ boi.peso_entrada }}" disabled>
-      </div>
-      <div class="form-group">
-        <label>Data de Nascimento</label>
-        <input type="text" value="{{ boi.data_nascimento|date:'d/m/Y' }}" disabled>
-      </div>
-      <div class="form-group">
-        <label>Data de Entrada</label>
-        <input type="text" value="{{ boi.data_entrada|date:'d/m/Y' }}" disabled>
-      </div>
-      <div class="form-group">
-        <label>Peso Projetado</label>
-        <input type="text" value="{{ peso_projetado.peso_projetado }} kg - {{ peso_projetado.data_projetado|date:'d/m/Y' }}" disabled>
-      </div>
+      <div class="form-group"><label>Lote Atual</label><input type="text" value="{{ boi.lote.nome_lote|default:'N/A' }}" disabled></div>
+      <div class="form-group"><label>Curral Atual</label><input type="text" value="{{ boi.lote.curral.nome_curral|default:'N/A' }}" disabled></div>
+      <div class="form-group"><label>Tipo de Curral</label><input type="text" value="{{ boi.lote.curral.tipo_curral.nome_tipo_curral|default:'N/A' }}" disabled></div>
+      <div class="form-group"><label>Sexo</label><input type="text" value="{{ boi.sexo.tipo_sexo }}" disabled></div>
+      <div class="form-group"><label>Raça</label><input type="text" value="{{ boi.raca.nome_raca }}" disabled></div>
+      <div class="form-group"><label>Fornecedor</label><input type="text" value="{{ boi.fornecedor.nome_fornecedor|default:'N/A' }}" disabled></div>
+      <div class="form-group"><label>Data de Nascimento</label><input type="text" value="{{ boi.data_nascimento|date:'d/m/Y' }}" disabled></div>
+      <div class="form-group"><label>Data de Entrada</label><input type="text" value="{{ boi.data_entrada|date:'d/m/Y' }}" disabled></div>
+      <div class="form-group"><label>Peso de Entrada</gmd_alvo --><input type="text" value="{{ boi.peso_entrada }} kg" disabled></div>
     </div>
+  </div>
+
+  <div id="projecao" class="aba-conteudo hidden">
+    <div class="form-grid formset-item">
+        <p><strong>Último Peso Registrado (Base):</strong> {{ dados_projecao.peso_base }} kg em {{ dados_projecao.data_base|date:"d/m/Y" }}</p>
+        <p><strong>GMD Alvo (pelo curral atual):</strong> {{ dados_projecao.gmd_alvo }} kg/dia</p>
+        <p><strong>Dias desde a última pesagem:</strong> {{ dados_projecao.dias_passados }} dias</p>
+        <p style="font-size: 1.2rem;"><strong>Peso Atual Projetado:</strong> <strong>{{ dados_projecao.peso_atual_projetado|floatformat:2 }} kg</strong></p>
+    </div>
+  </div>
+
+  <div id="historico" class="aba-conteudo hidden">
+      <div class="tabela-wrapper">
+          <table class="tabela-lista">
+              <thead><tr><th>Data</th><th>Tipo de Evento</th><th>Descrição</th></tr></thead>
+              <tbody>
+                  {% for evento in historico_ordenado %}
+                  <tr>
+                      <td>{{ evento.data|date:"d/m/Y" }}</td>
+                      <td>{{ evento.tipo }}</td>
+                      <td>{{ evento.descricao }}</td>
+                  </tr>
+                  {% empty %}
+                  <tr><td colspan="3" class="sem-registro">Nenhum evento registrado.</td></tr>
+                  {% endfor %}
+              </tbody>
+          </table>
+      </div>
   </div>
 
   <div id="saida" class="aba-conteudo hidden">
     <div class="form-grid">
-      <div class="form-group">
-        <label>Peso de Saída</label>
-        <input type="text" value="{{ boi.peso_saida }}" disabled>
-      </div>
-      <div class="form-group">
-        <label>Data de Saída</label>
-        <input type="text" value="{{ boi.data_saida|date:'d/m/Y' }}" disabled>
-      </div>
+      <div class="form-group"><label>Peso de Saída</label><input type="text" value="{{ boi.peso_saida|default:'-' }} kg" disabled></div>
+      <div class="form-group"><label>Data de Saída</label><input type="text" value="{{ boi.data_saida|date:'d/m/Y'|default:'-' }}" disabled></div>
     </div>
   </div>
 
   <div id="morte" class="aba-conteudo hidden">
     <div class="form-grid">
-      <div class="form-group">
-        <label>Data de Morte</label>
-        <input type="text" value="{{ boi.data_morte|date:'d/m/Y' }}" disabled>
-      </div>
-      <div class="form-group">
-        <label>Motivo da Morte</label>
-        <input type="text" value="{{ boi.motivo_morte }}" disabled>
-      </div>
-      <div class="form-group">
-        <label>Necropsia</label>
-        <input type="text" value="{% if boi.necropsia %}Sim{% else %}Não{% endif %}" disabled>
-      </div>
+      <div class="form-group"><label>Data da Morte</label><input type="text" value="{{ boi.data_morte|date:'d/m/Y'|default:'-' }}" disabled></div>
+      <div class="form-group"><label>Motivo da Morte</label><textarea disabled style="width:100%; height:80px; background-color:#f9fafb; border: 1px solid #d1d5db; padding: 10px;">{{ boi.motivo_morte|default:'-' }}</textarea></div>
+      <div class="form-group"><label>Necropsia Realizada</label><input type="text" value="{% if boi.necropsia %}Sim{% else %}Não{% endif %}" disabled></div>
     </div>
   </div>
 
   <div id="pesagens" class="aba-conteudo hidden">
-    <table class="tabela-lista">
-      <thead>
-        <tr>
-          <th>Data</th>
-          <th>Peso (kg)</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for pesagem in boi.pesagens.all %}
-        <tr>
-          <td>{{ pesagem.data_movimentacao|date:'d/m/Y' }}</td>
-          <td>{{ pesagem.peso_movimentacao }}</td>
-        </tr>
-        {% empty %}
-        <tr>
-          <td colspan="2" class="sem-registro">Nenhuma pesagem registrada.</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    <div class="tabela-wrapper">
+        <table class="tabela-lista">
+        <thead><tr><th>Data</th><th>Peso (kg)</th></tr></thead>
+        <tbody>
+            {% for pesagem in boi.pesagens.all %}
+            <tr>
+            <td>{{ pesagem.data_movimentacao|date:'d/m/Y' }}</td>
+            <td>{{ pesagem.peso_movimentacao }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="2" class="sem-registro">Nenhuma pesagem de movimentação registrada.</td></tr>
+            {% endfor %}
+        </tbody>
+        </table>
+    </div>
   </div>
 </div>
 
 <script>
 function mostrarAba(id) {
-  document.querySelectorAll('.aba-conteudo, .aba-ativa').forEach(el => el.classList.add('hidden'));
+
+  document.querySelectorAll('.aba-conteudo').forEach(el => {
+    if (!el.classList.contains('hidden')) {
+      el.classList.add('hidden');
+    }
+  });
+  
+
   document.getElementById(id).classList.remove('hidden');
 }
 </script>
 
 <style>
-.hidden { display: none; }
+
+.hidden { 
+    display: none !important; 
+}
 </style>
 {% endblock %}

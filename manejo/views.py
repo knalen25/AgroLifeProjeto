@@ -7,7 +7,7 @@ from manejo.models import Manejo, TipoManejo, StatusManejo, BoiManejo
 from boi.models import StatusBoi
 from boi.models import Boi, PesoMovimentacao
 from django.views.generic import ListView, DetailView, UpdateView, DeleteView
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.db.models import Q
 import datetime
 
@@ -21,30 +21,29 @@ def criar_manejo_entrada(request):
 
         if form_manejo.is_valid() and formset_parametros.is_valid() and formset_bois.is_valid():
             
-            # Use transaction.atomic para garantir a integridade dos dados
+            
             try:
                 with transaction.atomic():
-                    # --- INÍCIO DA CORREÇÃO ---
-                    # 1. Busque o TipoManejo "Entrada" antes de tudo
+                   
                     try:
                         tipo_entrada = TipoManejo.objects.get(nome_tipo_manejo__iexact='Entrada')
                     except TipoManejo.DoesNotExist:
                         messages.error(request, 'Erro Crítico: O tipo de manejo "Entrada" não existe no banco de dados.')
                         return redirect('listamanejo')
 
-                    # 2. Crie o objeto em memória
+                    
                     manejo = form_manejo.save(commit=False)
                     
-                    # 3. ATRIBUA OS VALORES QUE FALTAM
-                    manejo.tipo_manejo = tipo_entrada # <-- PONTO PRINCIPAL DA CORREÇÃO
                     
-                    # Você já estava fazendo isso corretamente para o status
+                    manejo.tipo_manejo = tipo_entrada 
+                    
+                    
                     status_concluido = StatusManejo.objects.get(nome_status_manejo='Concluido')
                     manejo.status_manejo = status_concluido
                     
-                    # 4. Agora salve o manejo, pois ele está completo
+                   
                     manejo.save()
-                    # --- FIM DA CORREÇÃO ---
+                    
 
                     formset_parametros.instance = manejo
                     formset_parametros.save()
@@ -65,7 +64,7 @@ def criar_manejo_entrada(request):
                                     break
                             
                             if not lote_encontrado:
-                                # Esta exceção vai disparar o rollback da transação
+                                
                                 raise ValueError(f"Nenhuma regra definida NESTE manejo para um boi da raça '{raca_boi}' com peso {peso_entrada}kg.")
                             
                             boi = boi_form.save(commit=False)
@@ -83,12 +82,12 @@ def criar_manejo_entrada(request):
                     return redirect('listamanejo')
 
             except ValueError as e:
-                # Captura o erro que levantamos manualmente para cancelar a transação
+                
                 messages.error(request, f"{e} A operação foi cancelada.")
-                # Os formulários com os dados preenchidos serão renderizados novamente
+                
             
             except Exception as e:
-                # Captura qualquer outro erro inesperado
+                
                 messages.error(request, f"Ocorreu um erro inesperado: {e}. A operação foi cancelada.")
 
 
@@ -445,9 +444,86 @@ class ManejoDetailView(DetailView):
     template_name = 'manejo/detalhemanejo.html'
     context_object_name = 'manejo'
 
+
 class ManejoUpdateView(UpdateView):
     model = Manejo
     form_class = ManejoUpdateForm
     template_name = 'manejo/atualizarmanejo.html'
     context_object_name = 'manejo'
-    success_url = reverse_lazy('listamanejo')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.object.tipo_manejo.nome_tipo_manejo.lower() == 'entrada':
+            if self.request.POST:
+                context['formset_parametros'] = ParametroManejoFormSet(self.request.POST, instance=self.object, prefix='parametros')
+            else:
+                context['formset_parametros'] = ParametroManejoFormSet(instance=self.object, prefix='parametros')
+        return context
+
+    
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form = self.get_form()
+        formset_parametros = None
+        if self.object.tipo_manejo.nome_tipo_manejo.lower() == 'entrada':
+            formset_parametros = ParametroManejoFormSet(request.POST, instance=self.object, prefix='parametros')
+
+        if form.is_valid() and (formset_parametros is None or formset_parametros.is_valid()):
+            return self.form_valid(form, formset_parametros)
+        else:
+            return self.form_invalid(form, formset_parametros)
+
+    def form_valid(self, form, formset_parametros):
+   
+        try:
+            with transaction.atomic():
+                self.object = form.save()
+                
+                
+                if formset_parametros:
+                    formset_parametros.instance = self.object
+                    formset_parametros.save()
+                    
+                    
+                    bois_reclassificados = 0
+                    
+                    
+                    novas_regras = self.object.parametros_manejo.all()
+                    
+                    
+                    bois_do_manejo = Boi.objects.filter(manejos__manejo=self.object)
+
+                    for boi in bois_do_manejo:
+                        lote_correto_encontrado = None
+                        
+                        
+                        for regra in novas_regras:
+                            if regra.raca == boi.raca and regra.peso_inicial <= boi.peso_entrada <= regra.peso_final:
+                                lote_correto_encontrado = regra.lote
+                                break
+                        
+                        
+                        if lote_correto_encontrado and boi.lote != lote_correto_encontrado:
+                            boi.lote = lote_correto_encontrado
+                            boi.save(update_fields=['lote'])
+                            bois_reclassificados += 1
+                    
+                    if bois_reclassificados > 0:
+                        messages.info(self.request, f"{bois_reclassificados} animal(is) foram reclassificados para novos lotes com base nas regras atualizadas.")
+                
+                messages.success(self.request, "Manejo atualizado com sucesso!")
+
+        except Exception as e:
+            messages.error(self.request, f"Ocorreu um erro durante a atualização: {e}")
+
+        return redirect(self.get_success_url())
+
+    def form_invalid(self, form, formset_parametros):
+        context = self.get_context_data(form=form)
+        if formset_parametros:
+            context['formset_parametros'] = formset_parametros
+        return self.render_to_response(context)
+
+    def get_success_url(self):
+        return reverse('detalhemanejo', kwargs={'pk': self.object.pk})
+
