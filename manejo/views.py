@@ -110,20 +110,19 @@ def manejo_saida_venda(request):
     template_name = 'manejo/manejosaida.html'
     context = {}
 
-    # Garante que as variáveis de sessão existam
+    
     if 'venda_atual' not in request.session:
         request.session['venda_atual'] = []
     if 'protocolo_saida_id' not in request.session:
         request.session['protocolo_saida_id'] = None
 
-    # --- LÓGICA DO POST ---
     if request.method == 'POST':
-        # Guarda o protocolo selecionado na sessão a cada ação POST
+        
         protocolo_id_selecionado = request.POST.get('protocolo_sanitario')
         if protocolo_id_selecionado:
             request.session['protocolo_saida_id'] = protocolo_id_selecionado
 
-        # --- AÇÃO: Finalizar a Venda ---
+        
         if 'finalizar_venda' in request.POST:
             venda_atual = request.session.get('venda_atual', [])
             saida_manejo_form = SaidaManejoForm(request.POST)
@@ -136,7 +135,7 @@ def manejo_saida_venda(request):
                         protocolo = saida_manejo_form.cleaned_data['protocolo_sanitario']
                         data_manejo_geral = datetime.datetime.strptime(venda_atual[0]['data_saida'], '%Y-%m-%d').date()
 
-                        # CORREÇÃO 1: Usando __iexact para busca case-insensitive
+                        
                         tipo_manejo_saida = TipoManejo.objects.get(nome_tipo_manejo__iexact='saida')
                         status_concluido = StatusManejo.objects.get(nome_status_manejo__iexact='Concluido')
 
@@ -156,7 +155,7 @@ def manejo_saida_venda(request):
                             boi.save()
                             BoiManejo.objects.create(boi=boi, manejo=manejo)
 
-                        # Limpa a sessão após o sucesso
+                        
                         del request.session['venda_atual']
                         del request.session['protocolo_saida_id']
                         messages.success(request, f"Venda de {len(venda_atual)} animais concluída com sucesso!")
@@ -168,7 +167,7 @@ def manejo_saida_venda(request):
             else:
                  messages.error(request, "Erro de validação. Por favor, selecione um protocolo sanitário.")
 
-        # --- AÇÃO: Remover Boi da Lista ---
+        
         elif 'remover_da_venda' in request.POST:
             boi_id_remover = request.POST.get('remover_da_venda')
             if boi_id_remover:
@@ -179,7 +178,7 @@ def manejo_saida_venda(request):
                 messages.success(request, "Animal removido da lista de venda.")
             return redirect('manejo_saida_venda')
 
-        # --- AÇÃO: Adicionar Boi à Lista ---
+        
         elif 'adicionar_a_venda' in request.POST:
             venda_form = VendaBoiForm(request.POST)
             if venda_form.is_valid():
@@ -201,7 +200,7 @@ def manejo_saida_venda(request):
                 context['venda_form'] = venda_form
                 context['boi_encontrado'] = Boi.objects.get(pk=request.POST.get('boi_id'))
 
-        # --- AÇÃO: Buscar Boi ---
+        
         elif 'buscar_boi' in request.POST:
             busca_form = BuscaBoiForm(request.POST)
             if busca_form.is_valid():
@@ -214,11 +213,11 @@ def manejo_saida_venda(request):
                     messages.error(request, f"Nenhum boi ATIVO encontrado com o brinco '{brinco}'.")
             context['busca_form'] = busca_form
 
-    # --- LÓGICA DO GET (ou estado inicial) ---
+    
     if 'busca_form' not in context:
         context['busca_form'] = BuscaBoiForm()
     
-    # CORREÇÃO 2: Inicializa o formulário com o valor guardado na sessão
+    
     protocolo_id_sessao = request.session.get('protocolo_saida_id')
     context['saida_manejo_form'] = SaidaManejoForm(initial={'protocolo_sanitario': protocolo_id_sessao})
 
@@ -232,20 +231,18 @@ def manejo_movimentacao(request):
     template_name = 'manejo/manejomovimentacao.html'
     context = {}
 
-    # Garante que a lista exista na sessão
+    
     if 'movimentacao_atual' not in request.session:
         request.session['movimentacao_atual'] = []
 
-    # --- LÓGICA DO POST ---
+   
     if request.method == 'POST':
-        # ANOTAÇÃO 1: Instanciamos os formulários com os dados do POST logo no início.
-        # Isso garante que, independentemente da ação (adicionar, buscar, finalizar),
-        # os dados digitados pelo usuário nos parâmetros sejam preservados.
+
         manejo_form = ManejoForm(request.POST, prefix='manejo')
         formset_parametros = ParametroMovimentacaoFormSet(request.POST, prefix='parametros')
-        busca_form = BuscaBoiForm(request.POST) # Sempre recria com os dados postados
+        busca_form = BuscaBoiForm(request.POST) 
 
-        # --- AÇÃO: Finalizar o Manejo ---
+        
         if 'finalizar_movimentacao' in request.POST:
             animais_na_sessao = request.session.get('movimentacao_atual', [])
             
@@ -255,7 +252,7 @@ def manejo_movimentacao(request):
             elif manejo_form.is_valid() and formset_parametros.is_valid():
                 try:
                     with transaction.atomic():
-                        # ... (lógica de finalização que já estava correta) ...
+                        
                         tipo_mov = TipoManejo.objects.get(nome_tipo_manejo__iexact='movimentacao')
                         status_concluido = StatusManejo.objects.get(nome_status_manejo='Concluido')
 
@@ -316,7 +313,7 @@ def manejo_movimentacao(request):
                             label = form.fields.get(field).label if form.fields.get(field) else field
                             messages.error(request, f"- Campo '{label}': {error}")
 
-        # --- AÇÃO: Adicionar Boi à Lista ---
+        
         elif 'adicionar_boi' in request.POST:
             mov_data_form = MovimentacaoDataForm(request.POST)
             if mov_data_form.is_valid():
@@ -331,22 +328,19 @@ def manejo_movimentacao(request):
                     })
                     request.session.modified = True
                     messages.success(request, f"Boi {boi_instance.brinco} adicionado à lista.")
-                    # ANOTAÇÃO 2: Limpamos o formulário de busca para uma nova busca.
+                    
                     busca_form = BuscaBoiForm()
                 else:
                     messages.warning(request, "Este animal já está na lista.")
-                    # Mantém o boi encontrado na tela para referência
+                    
                     context['boi_encontrado'] = Boi.objects.get(pk=request.POST.get('boi_id'))
                     context['mov_data_form'] = mov_data_form
             else:
-                # Se o form de adicionar não for válido, repopulamos o contexto para exibir os erros
+                
                 context['mov_data_form'] = mov_data_form
                 context['boi_encontrado'] = Boi.objects.get(pk=request.POST.get('boi_id'))
 
-            # ANOTAÇÃO 3: O redirect foi removido! A execução continua até o final da função,
-            # onde a página será re-renderizada com os formulários preservando os dados.
 
-        # --- AÇÃO: Buscar Boi ---
         elif 'buscar_boi' in request.POST:
             if busca_form.is_valid():
                 brinco = busca_form.cleaned_data['brinco']
@@ -358,7 +352,7 @@ def manejo_movimentacao(request):
                 except (Boi.DoesNotExist, StatusBoi.DoesNotExist):
                     messages.error(request, f"Nenhum boi ATIVO encontrado com o brinco '{brinco}'.")
         
-        # --- AÇÃO: Remover Boi da Lista ---
+       
         elif 'remover_boi' in request.POST:
             boi_id_remover = request.POST.get('remover_boi')
             if boi_id_remover:
@@ -368,20 +362,18 @@ def manejo_movimentacao(request):
                 request.session.modified = True
                 messages.success(request, "Animal removido da lista de movimentação.")
             
-            # ANOTAÇÃO 4: O redirect também foi removido daqui para manter a consistência.
 
-        # Populamos o contexto com os formulários que contêm os dados da submissão
         context['manejo_form'] = manejo_form
         context['formset_parametros'] = formset_parametros
         context['busca_form'] = busca_form
 
-    # --- LÓGICA DO GET (ou estado inicial) ---
+    
     else:
         context['manejo_form'] = ManejoForm(prefix='manejo', initial={'data_manejo': datetime.date.today()})
         context['formset_parametros'] = ParametroMovimentacaoFormSet(prefix='parametros')
         context['busca_form'] = BuscaBoiForm()
 
-    # Este dado é sempre pego da sessão, tanto no GET quanto no final do POST
+    
     context['animais_na_movimentacao'] = request.session.get('movimentacao_atual', [])
     
     return render(request, template_name, context)
