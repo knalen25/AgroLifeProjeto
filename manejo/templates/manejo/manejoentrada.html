@@ -88,7 +88,7 @@
 <div id="parametro-empty-form" class="campo-oculto">
     <div class="form-grid formset-item">
         {% for field in formset_parametros.empty_form %}
-             {# CONDIÇÃO CORRIGIDA NO TEMPLATE OCULTO #}
+             
             <div class="form-group {% if field.name == 'id' or field.name == 'manejo' or field.name == 'DELETE' %}campo-oculto{% endif %}">
                 {{ field.label_tag }}
                 {{ field }}

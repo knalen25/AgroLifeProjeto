@@ -141,6 +141,7 @@ class BoiMorteView(UpdateView):
     template_name = "boi/registrarmorte.html"
     success_url = reverse_lazy('listamorte')
 
+
 class ListaBoiMorteView(ListView):
     model = Boi
     template_name = 'boi/listamorte.html'

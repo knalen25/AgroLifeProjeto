@@ -84,6 +84,7 @@
                     </div>
                     <div class="form-actions">
                         <button type="submit" name="finalizar_movimentacao" class="botao-acao botao-adicionar" formnovalidate>Finalizar Movimentação</button>
+                        <a href="{% url 'listamanejo' %}" class="botao-acao botao-limpar">Cancelar</a>
                     </div>
                 {% else %}
                     <p>A lista está vazia. Use a busca ao lado para adicionar animais.</p>

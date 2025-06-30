@@ -33,38 +33,64 @@ class BoiModelForm(forms.ModelForm):
         self.instance.status_boi = status_ativo
         return super().save(commit=commit)
 
-class BoiMorteForm(forms.ModelForm):
-    status_boi = forms.ModelChoiceField(
-        queryset=StatusBoi.objects.all(),
-        empty_label=None,
-        widget=forms.Select(attrs={"class": "form-control"}),
-        label="Status do Boi",
-        help_text="Escolha 'Morto' para registrar a morte do animal."
-    )
+# class BoiMorteForm(forms.ModelForm):
+#     status_boi = forms.ModelChoiceField(
+#         queryset=StatusBoi.objects.all(),
+#         empty_label=None,
+#         widget=forms.Select(attrs={"class": "form-control"}),
+#         label="Status do Boi",
+#         help_text="Escolha 'Morto' para registrar a morte do animal."
+#     )
 
+#     class Meta:
+#         model = Boi
+#         fields = ["status_boi", "data_morte", "motivo_morte", "necropsia"]
+#         labels = {
+#             "data_morte":   "Data da Morte",
+#             "motivo_morte": "Motivo da Morte",
+#             "necropsia":    "Necropsia",
+#         }
+#         widgets = {
+#             "data_morte":   forms.DateInput(attrs={"type": "date", "class": "form-control"}),
+#             "motivo_morte": forms.Textarea(attrs={"rows": 3, "class": "form-control"}),
+#         }
+
+#     def clean(self):
+#         cleaned = super().clean()
+#         status = cleaned.get("status_boi")
+#         data_morte = cleaned.get("data_morte")
+#         motivo    = cleaned.get("motivo_morte")
+        
+#         if status and status.nome_status == "Morto":
+#             if not data_morte:
+#                 self.add_error("data_morte", 'Obrigatório ao marcar como "Morto".')
+#             if not motivo:
+#                 self.add_error("motivo_morte", 'Obrigatório ao marcar como "Morto".')
+#         return cleaned
+
+class BoiMorteForm(forms.ModelForm):
     class Meta:
         model = Boi
-        fields = ["status_boi", "data_morte", "motivo_morte", "necropsia"]
+
+        fields = ["data_morte", "motivo_morte", "necropsia"]
         labels = {
             "data_morte":   "Data da Morte",
             "motivo_morte": "Motivo da Morte",
-            "necropsia":    "Necropsia",
+            "necropsia":    "Necropsia Realizada?",
         }
         widgets = {
             "data_morte":   forms.DateInput(attrs={"type": "date", "class": "form-control"}),
             "motivo_morte": forms.Textarea(attrs={"rows": 3, "class": "form-control"}),
+            "necropsia":    forms.CheckboxInput(attrs={"class": "form-check-input"}),
         }
 
-    def clean(self):
-        cleaned = super().clean()
-        status = cleaned.get("status_boi")
-        data_morte = cleaned.get("data_morte")
-        motivo    = cleaned.get("motivo_morte")
-        
-        if status and status.nome_status == "Morto":
-            if not data_morte:
-                self.add_error("data_morte", 'Obrigatório ao marcar como "Morto".')
-            if not motivo:
-                self.add_error("motivo_morte", 'Obrigatório ao marcar como "Morto".')
-        return cleaned
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['data_morte'].required = True
+        self.fields['motivo_morte'].required = True
 
+    def save(self, commit=True):
+        status_morto = StatusBoi.objects.get(nome_status='Morto')
+        self.instance.status_boi = status_morto
+
+        return super().save(commit=commit)

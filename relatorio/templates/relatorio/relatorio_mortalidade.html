@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Relatório de Mortalidade</h1>
+
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Gerar Relatório</button>
+  </form>
+
+  {% if resultado %}
+    <h2>Resultados</h2>
+    <ul>
+      <li><strong>Rebanho inicial:</strong> {{ resultado.rebanho_inicial }}</li>
+      <li><strong>Entradas no período:</strong> {{ resultado.entradas }}</li>
+      <li><strong>Rebanho acumulado:</strong> {{ resultado.rebanho_acumulado }}</li>
+      <li><strong>Mortes no período:</strong> {{ resultado.mortes }}</li>
+      <li><strong>Taxa de mortalidade:</strong> {{ resultado.taxa }}%</li>
+    </ul>
+  {% endif %}
+{% endblock %}

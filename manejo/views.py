@@ -238,11 +238,13 @@ def manejo_movimentacao(request):
 
     # --- LÓGICA DO POST ---
     if request.method == 'POST':
-        # Instancia os formulários com os dados do POST para validação ou re-exibição
+        # ANOTAÇÃO 1: Instanciamos os formulários com os dados do POST logo no início.
+        # Isso garante que, independentemente da ação (adicionar, buscar, finalizar),
+        # os dados digitados pelo usuário nos parâmetros sejam preservados.
         manejo_form = ManejoForm(request.POST, prefix='manejo')
         formset_parametros = ParametroMovimentacaoFormSet(request.POST, prefix='parametros')
-        busca_form = BuscaBoiForm(request.POST) # Instanciado aqui para o contexto
-        
+        busca_form = BuscaBoiForm(request.POST) # Sempre recria com os dados postados
+
         # --- AÇÃO: Finalizar o Manejo ---
         if 'finalizar_movimentacao' in request.POST:
             animais_na_sessao = request.session.get('movimentacao_atual', [])
@@ -251,10 +253,9 @@ def manejo_movimentacao(request):
                 messages.error(request, "A lista de movimentação está vazia. Adicione animais antes de finalizar.")
             
             elif manejo_form.is_valid() and formset_parametros.is_valid():
-                # Bloco de transação: ou tudo funciona, ou nada é salvo.
                 try:
                     with transaction.atomic():
-                        # 1. Preparar o objeto Manejo
+                        # ... (lógica de finalização que já estava correta) ...
                         tipo_mov = TipoManejo.objects.get(nome_tipo_manejo__iexact='movimentacao')
                         status_concluido = StatusManejo.objects.get(nome_status_manejo='Concluido')
 
@@ -263,12 +264,10 @@ def manejo_movimentacao(request):
                         manejo.status_manejo = status_concluido
                         manejo.save()
 
-                        # 2. Salvar os parâmetros (regras de lote)
                         formset_parametros.instance = manejo
                         formset_parametros.save()
                         regras_deste_manejo = manejo.parametros_manejo.all()
 
-                        # 3. Processar cada animal da sessão
                         for dados_boi in animais_na_sessao:
                             boi = Boi.objects.select_related('lote', 'raca').get(pk=dados_boi['boi_id'])
                             novo_peso = Decimal(dados_boi['peso_movimentacao'])
@@ -306,23 +305,16 @@ def manejo_movimentacao(request):
                     messages.error(request, f"Ocorreu um erro inesperado: {e}. A operação foi cancelada.")
             
             else:
-                # --- MELHORIA: EXIBIÇÃO DETALHADA DE ERROS ---
                 messages.error(request, "Não foi possível finalizar. Por favor, corrija os erros abaixo:")
-                
-                # Exibe erros do formulário principal de Manejo
                 for field, errors in manejo_form.errors.items():
                     for error in errors:
                         messages.error(request, f"Campo '{manejo_form.fields[field].label}': {error}")
-                
-                # Exibe erros do formset de Parâmetros
                 for i, form in enumerate(formset_parametros):
                     if form.errors:
                         messages.warning(request, f"Erros na Regra de Reclassificação #{i+1}:")
                         for field, errors in form.errors.items():
-                            for error in errors:
-                                # Acessa o 'label' do campo para uma mensagem mais amigável
-                                label = form.fields.get(field).label if form.fields.get(field) else field
-                                messages.error(request, f"- Campo '{label}': {error}")
+                            label = form.fields.get(field).label if form.fields.get(field) else field
+                            messages.error(request, f"- Campo '{label}': {error}")
 
         # --- AÇÃO: Adicionar Boi à Lista ---
         elif 'adicionar_boi' in request.POST:
@@ -339,12 +331,20 @@ def manejo_movimentacao(request):
                     })
                     request.session.modified = True
                     messages.success(request, f"Boi {boi_instance.brinco} adicionado à lista.")
+                    # ANOTAÇÃO 2: Limpamos o formulário de busca para uma nova busca.
+                    busca_form = BuscaBoiForm()
                 else:
                     messages.warning(request, "Este animal já está na lista.")
-                return redirect('manejo_movimentacao')
+                    # Mantém o boi encontrado na tela para referência
+                    context['boi_encontrado'] = Boi.objects.get(pk=request.POST.get('boi_id'))
+                    context['mov_data_form'] = mov_data_form
             else:
+                # Se o form de adicionar não for válido, repopulamos o contexto para exibir os erros
                 context['mov_data_form'] = mov_data_form
                 context['boi_encontrado'] = Boi.objects.get(pk=request.POST.get('boi_id'))
+
+            # ANOTAÇÃO 3: O redirect foi removido! A execução continua até o final da função,
+            # onde a página será re-renderizada com os formulários preservando os dados.
 
         # --- AÇÃO: Buscar Boi ---
         elif 'buscar_boi' in request.POST:
@@ -358,21 +358,19 @@ def manejo_movimentacao(request):
                 except (Boi.DoesNotExist, StatusBoi.DoesNotExist):
                     messages.error(request, f"Nenhum boi ATIVO encontrado com o brinco '{brinco}'.")
         
+        # --- AÇÃO: Remover Boi da Lista ---
         elif 'remover_boi' in request.POST:
             boi_id_remover = request.POST.get('remover_boi')
             if boi_id_remover:
                 animais_na_sessao = request.session.get('movimentacao_atual', [])
-                
-                # Cria uma nova lista sem o boi que corresponde ao ID a ser removido
                 nova_lista = [b for b in animais_na_sessao if b.get('boi_id') != int(boi_id_remover)]
-                
-                # Atualiza a sessão com a nova lista
                 request.session['movimentacao_atual'] = nova_lista
                 request.session.modified = True
                 messages.success(request, "Animal removido da lista de movimentação.")
+            
+            # ANOTAÇÃO 4: O redirect também foi removido daqui para manter a consistência.
 
-            return redirect('manejo_movimentacao')
-        
+        # Populamos o contexto com os formulários que contêm os dados da submissão
         context['manejo_form'] = manejo_form
         context['formset_parametros'] = formset_parametros
         context['busca_form'] = busca_form
@@ -383,10 +381,10 @@ def manejo_movimentacao(request):
         context['formset_parametros'] = ParametroMovimentacaoFormSet(prefix='parametros')
         context['busca_form'] = BuscaBoiForm()
 
+    # Este dado é sempre pego da sessão, tanto no GET quanto no final do POST
     context['animais_na_movimentacao'] = request.session.get('movimentacao_atual', [])
     
     return render(request, template_name, context)
-
 
 
 
@@ -396,7 +394,6 @@ class ManejoListView(ListView):
     template_name = 'manejo/listamanejo.html'
     context_object_name = 'manejos'
     
-
     def get_queryset(self):
         queryset = super().get_queryset().select_related(
             'tipo_manejo', 'status_manejo', 'protocolo_sanitario'

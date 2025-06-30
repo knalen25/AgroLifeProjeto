@@ -79,6 +79,7 @@
                         <button type="submit" name="finalizar_venda" class="botao-acao botao-adicionar" formnovalidate>
                             Finalizar Venda de {{ venda_atual|length }} Animal(is)
                         </button>
+                        <a href="{% url 'listamanejo' %}" class="botao-acao botao-limpar">Cancelar</a>
                     </div>
                 {% else %}
                     <p>A lista de venda está vazia. Busque um animal para começar.</p>
